@@ -10,6 +10,7 @@ echo "Building..."
 mkdir -p ~/.config
 mkdir -p priv/static
 
+
 mix deps.get
 mix compile
 (cd assets && npm install)
