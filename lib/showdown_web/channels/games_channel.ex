@@ -1,16 +1,22 @@
 defmodule ShowdownWeb.GamesChannel do
   use ShowdownWeb, :channel
 
+  alias Showdown.Game
+
   def join("games:" <> name, payload, socket) do
     if authorized?(payload) do
-      {:ok, %{"join" => name}, socket}
+      game = Game.new()
+      socket = socket
+               |> assign(:game, game)
+               |> assign(:name, name)
+      {:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
   end
 
   def handle_in("roll", payload, socket) do
-    resp = %{ "roll" => :rand.uniform(6) }
+    resp = %{"roll" => :rand.uniform(6)}
     {:reply, {:roll, resp}, socket}
   end
 

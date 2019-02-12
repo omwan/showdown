@@ -1,42 +1,27 @@
-// Brunch automatically concatenates all files in your
-// watched paths. Those paths can be configured at
-// config.paths.watched in "brunch-config.js".
-//
-// However, those files will only be executed if
-// explicitly imported. The only exception are files
-// in vendor, which are never wrapped in imports and
-// therefore are always executed.
-
+// We need to import the CSS so that webpack will load it.
+// The MiniCssExtractPlugin is used to separate it out into
+// its own CSS file.
 import css from "../css/app.css";
 
+// webpack automatically bundles all modules in your
+// entry points. Those entry points can be configured
+// in "webpack.config.js".
+//
 // Import dependencies
 //
-// If you no longer want to use a dependency, remember
-// to also remove its path from "config.paths.watched".
 import "phoenix_html";
 import $ from "jquery";
 
 // Import local files
 //
-// Local files can be imported directly using relative
-// paths "./socket" or full ones "web/static/js/socket".
-
-import socket from "./socket"
-
-let channel = socket.channel("games:demo", {});
-channel.join()
-    .receive("ok", resp => { console.log("Joined successfully", resp) })
-    .receive("error", resp => { console.log("Unable to join", resp) });
-
-function roll_init() {
-    $('#roll-button').click(() => {
-        channel.push("roll", {}).receive("roll", msg => {
-            console.log("roll", msg);
-            $('#roll-output').text(msg.roll);
-        });
-    });
-}
+// Local files can be imported directly using relative paths, for example:
+import game_init from "./showdown-game";
+import socket from "./socket";
 
 $(() => {
-    roll_init();
+    let root = $('#root')[0];
+    if (root) {
+        let channel = socket.channel("games:" + window.gameName, {});
+        game_init(root, channel);
+    }
 });
