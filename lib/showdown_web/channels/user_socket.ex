@@ -3,6 +3,7 @@ defmodule ShowdownWeb.UserSocket do
 
   ## Channels
   # channel "room:*", ShowdownWeb.RoomChannel
+  channel "games:*", ShowdownWeb.GamesChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
