@@ -2,10 +2,12 @@ defmodule ShowdownWeb.GamesChannel do
   use ShowdownWeb, :channel
 
   alias Showdown.Game
+  alias Showdown.BackupAgent
 
   def join("games:" <> name, payload, socket) do
     if authorized?(payload) do
-      game = Game.new()
+      game = BackupAgent.get(name) || Game.new()
+      BackupAgent.put(name, game)
       socket = socket
                |> assign(:game, game)
                |> assign(:name, name)

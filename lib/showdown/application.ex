@@ -12,6 +12,7 @@ defmodule Showdown.Application do
       supervisor(ShowdownWeb.Endpoint, []),
       # Start your own worker by calling: Showdown.Worker.start_link(arg1, arg2, arg3)
       # worker(Showdown.Worker, [arg1, arg2, arg3]),
+      Showdown.BackupAgent
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
