@@ -7,6 +7,7 @@ defmodule ShowdownWeb.Router do
     plug :fetch_flash
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug ShowdownWeb.Plugs.FetchSession
   end
 
   pipeline :api do
@@ -18,6 +19,8 @@ defmodule ShowdownWeb.Router do
 
     get "/", PageController, :index
     get "/game/:name", PageController, :game
+
+    resources "/sessions", SessionController, only: [:create, :delete], singleton: true
   end
 
   # Other scopes may use custom stacks.

@@ -1,2 +1,14 @@
 /* This file is for your main application css. */
 @import "~milligram/dist/milligram";
+
+header {
+    margin-bottom:50px;
+}
+
+.login-form {
+    width:100%;
+}
+
+.games {
+    margin-bottom:50px;
+}
