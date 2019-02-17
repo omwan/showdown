@@ -6,7 +6,11 @@ defmodule Showdown.Game do
     }
   end
 
-  def client_view(game) do
+  def client_view(game, user) do
+    game
+  end
+
+  def move(game, _user, _move) do
     game
   end
 
