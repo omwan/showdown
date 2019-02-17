@@ -21,6 +21,7 @@ import socket from "./socket";
 $(() => {
     let root = $('#root')[0];
     if (root) {
+        socket.connect();
         let channel = socket.channel("games:" + window.gameName, {});
         game_init(root, channel);
     }

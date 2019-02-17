@@ -19,10 +19,11 @@ defmodule Showdown.Game do
     }
   end
 
-  def client_view(game) do
-    # current user + other user
-    # only show current user's moves
+  def client_view(game, user) do
+    game
+  end
 
+  def move(game, _user, _move) do
     game
   end
 

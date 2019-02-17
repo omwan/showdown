@@ -1,25 +1,22 @@
 defmodule ShowdownWeb.GamesChannel do
   use ShowdownWeb, :channel
 
-  alias Showdown.Game
-  alias Showdown.BackupAgent
+  alias Showdown.GameServer
 
-  def join("games:" <> name, payload, socket) do
+  def join("games:" <> game, payload, socket) do
     if authorized?(payload) do
-      game = BackupAgent.get(name) || Game.new()
-      BackupAgent.put(name, game)
-      socket = socket
-               |> assign(:game, game)
-               |> assign(:name, name)
-      {:ok, %{"join" => name, "game" => Game.client_view(game)}, socket}
+      socket = assign(socket, :game, game)
+      view = GameServer.view(game, socket.assigns[:username])
+      {:ok, %{"join" => game, "game" => view}, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
   end
 
-  def handle_in("roll", payload, socket) do
-    resp = %{"roll" => :rand.uniform(6)}
-    {:reply, {:roll, resp}, socket}
+  def handle_in("move", %{"move" => move}, socket) do
+    view = GameServer.move(socket.assigns[:game],
+      socket.assigns[:username], move)
+    {:reply, {:ok, %{"game" => view}}, socket}
   end
 
   # Add authorization logic here as required.

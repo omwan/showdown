@@ -20,8 +20,15 @@ defmodule ShowdownWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
+  def connect(%{"token" => token}, socket) do
     {:ok, socket}
+    case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
+      {:ok, username} ->
+        IO.puts("socket connect from username = #{username}")
+        {:ok, assign(socket, :user, username)}
+      {:error, _reason} ->
+        :error
+    end
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

@@ -6,7 +6,11 @@ defmodule ShowdownWeb.Plugs.FetchSession do
   end
 
   def call(conn, _args) do
-    username = get_session(conn, :username)
-    assign(conn, :username, username)
+    if username = get_session(conn, :username) do
+      token = Phoenix.Token.sign(conn, "user socket", username)
+      assign(conn, :user_token, token)
+    else
+      assign(conn, :user_token, "")
+    end
   end
 end
