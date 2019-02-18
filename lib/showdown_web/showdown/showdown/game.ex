@@ -47,30 +47,51 @@ defmodule Showdown.Game do
     end)
   end
 
-  def client_view(game, username) do
+  def get_opponent(game, current_user) do
     players = Map.keys(game.players)
     filtered_names = Enum.filter(players, fn player ->
-      player != username
+      player != current_user
     end)
-
     if length(filtered_names) == 1 do
       [opponent_name] = filtered_names
-      opponent = game.players[opponent_name]
+      game.players[opponent_name]
+    else
+      nil
+    end
+  end
+
+  def client_view(game, username) do
+    opponent = get_opponent(game, username)
+    if opponent == nil do
+      %{
+        player: game.players[username]
+      }
+    else
       %{
         player: game.players[username],
         opponent: %{
-          name: opponent_name,
+          name: opponent.name,
           current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
           team: opp_team_view(game, opponent)
         },
         submitted_moves: game.submitted_moves,
         sequence: game.sequence
       }
-    else
-      %{
-        player: game.players[username],
-      }
     end
+  end
+
+  def calculate_hp(game, username, move) do
+    opponent = get_opponent(game, username)
+    opp_pokemon = opponent.current_pokemon
+    opp_hp = opp_pokemon.hp
+
+    player = game.players[username]
+    player_pokemon = player.current_pokemon
+    [player_move] = Enum.filter(player_pokemon.moves, fn m ->
+      m.name == move
+    end)
+    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    max(0, opp_hp - damage)
   end
 
   def build_sequence(game) do
@@ -82,9 +103,16 @@ defmodule Showdown.Game do
         current_pokemon.speed
       end)
       |> Enum.map(fn {username, move} ->
+        attacker = game.players[username]
+        att_pokemon = attacker.current_pokemon
+
+        opponent = get_opponent(game, username)
+        opp_pokemon = opponent.current_pokemon
         %{
-          username: username,
-          move: move
+          attacker: att_pokemon.name,
+          opponent: opp_pokemon.name,
+          move: move,
+          opponent_remaining_hp: calculate_hp(game, username, move)
         }
       end)
     Map.put(game, :sequence, sequence)
