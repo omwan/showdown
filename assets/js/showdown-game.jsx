@@ -46,7 +46,7 @@ class WaitingRoom extends React.Component {
         this.state = {};
     }
     render() {
-        return <div className="waiting-room">Waiting Room.</div>
+        return <div className="waiting-room">Waiting for another user to join.</div>
     }
 }
 
