@@ -10,7 +10,10 @@ class Showdown extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel;
-        this.state = {};
+        this.state = {
+            users: [],
+            submitted_moves: []
+        };
 
         this.channel
             .join()
@@ -22,7 +25,7 @@ class Showdown extends React.Component {
 
     got_view(view) {
         console.log(view);
-        this.setState(view);
+        this.setState(view.game);
     }
 
     render() {
@@ -30,6 +33,7 @@ class Showdown extends React.Component {
             { false && <WaitingRoom></WaitingRoom> }
             { true && <Battle></Battle> }
             { false && <Result></Result>}
+
         </div>
     }
 }
