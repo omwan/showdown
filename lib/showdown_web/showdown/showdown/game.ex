@@ -35,7 +35,8 @@ defmodule Showdown.Game do
   def opp_pokemon_view(game, pokemon) do
     %{
       name: pokemon.name,
-      hp: pokemon.hp
+      hp: pokemon.hp,
+      max_hp: pokemon.max_hp
     }
   end
 
@@ -90,7 +91,7 @@ defmodule Showdown.Game do
     [player_move] = Enum.filter(player_pokemon.moves, fn m ->
       m.name == move
     end)
-    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    damage = (player_pokemon.attack / opp_pokemon.defense) * player_move.power
     max(0, opp_hp - damage)
   end
 
@@ -109,8 +110,10 @@ defmodule Showdown.Game do
         opponent = get_opponent(game, username)
         opp_pokemon = opponent.current_pokemon
         %{
+          player: username,
+          opponent: opponent.name,
           attacker: att_pokemon.name,
-          opponent: opp_pokemon.name,
+          recipient: opp_pokemon.name,
           move: move,
           opponent_remaining_hp: calculate_hp(game, username, move)
         }
@@ -126,6 +129,31 @@ defmodule Showdown.Game do
       else
         Map.put(game, :submitted_moves, submitted_moves)
       end
+    else
+      game
+    end
+  end
+
+  def apply(game, username) do
+    if length(game.sequence) == 2 do
+      updates = game.sequence
+        |> Enum.map(fn item ->
+             {item.opponent, item.opponent_remaining_hp}
+           end)
+        |> Map.new
+
+      players = Enum.map(game.players, fn {name, player} ->
+        update = updates[name]
+        pokemon = Map.put(player.current_pokemon, :hp, update)
+        team = Enum.map(player.team, fn pkmn ->
+          if pkmn.name == pokemon.name do
+            Map.put(pkmn, :hp, update)
+          end
+        end)
+        {name, Map.put(Map.put(player, :team, team), :current_pokemon, pokemon)}
+      end)
+        |> Map.new
+      %{game | players: players, sequence: [], submitted_moves: %{}}
     else
       game
     end
@@ -156,9 +184,9 @@ defmodule Showdown.Game do
       },
       %Pokemon{
         name: "charmander",
-        speed: 1,
-        attack: 1,
-        defense: 3,
+        speed: 3,
+        attack: 3,
+        defense: 1,
         hp: 8,
         max_hp: 8,
         type: "",
@@ -177,9 +205,9 @@ defmodule Showdown.Game do
       },
       %Pokemon{
         name: "squirtle",
-        speed: 3,
-        attack: 3,
-        defense: 1,
+        speed: 1,
+        attack: 1,
+        defense: 3,
         hp: 12,
         max_hp: 12,
         moves: [

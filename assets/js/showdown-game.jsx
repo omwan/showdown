@@ -91,7 +91,7 @@ class PkmInfoBar extends React.Component {
     render() {
         return <div className={this.class}>
             <div className="pkm-name">{this.pokemon.name}</div>
-            <div className="pkm-hp">current_hp / {this.pokemon.hp}</div>
+            <div className="pkm-hp">{this.pokemon.hp} / {this.pokemon.max_hp}</div>
         </div>
     }
 }
