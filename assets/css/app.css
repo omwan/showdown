@@ -16,16 +16,17 @@ header {
 .battle {
     display: grid;
     grid-gap: 5px;
-    grid-template-columns: 20% 30% 30% 20%;
+    grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 27% 27% 10% 36%;
     height: 60%;
     min-height: 600px;
     width: 100%;
     grid-template-areas: 
-    "player-team opponent-info opponent-art opponent-team"
-    "player-team player-art player-info opponent-team"
-    "player-team battle-text battle-text opponent-team"
-    "player-team m m opponent-team";
+    "player-team opponent-info opponent-info opponent-art opponent-team"
+    "player-team player-art player-info player-info opponent-team"
+    "player-team battle-text battle-text battle-text opponent-team"
+    "player-team m m m opponent-team";
+    justify-content: center;
 }
 
 .player.team {
@@ -68,6 +69,7 @@ header {
     width: 100%;
     height: 100%;
     justify-content: space-evenly;
+    
 }
 
 .submenu {
