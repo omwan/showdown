@@ -6,7 +6,7 @@ defmodule ShowdownWeb.GamesChannel do
   def join("games:" <> game, payload, socket) do
     if authorized?(payload) do
       socket = assign(socket, :game, game)
-      view = GameServer.view(game, socket.assigns[:username])
+      view = GameServer.join(game, socket.assigns[:username])
       {:ok, %{"join" => game, "game" => view}, socket}
     else
       {:error, %{reason: "unauthorized"}}
