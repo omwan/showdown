@@ -8,50 +8,59 @@ defmodule Showdown.Game do
     }
   end
 
-  def new_player(name) do
-    %User{
-      name: name,
-      team: [get_pokemon()]
+  def new_player(username) do
+    team = [get_pokemon()]
+    %Player{
+      name: username,
+      team: team,
+      current_pokemon: Enum.at(team, 0)
     }
   end
 
-  def join(game, player) do
+  def join(game, username) do
     if map_size(game.players) < 2 do
-      players = Map.put(game.players, player, new_player(player))
+      players = Map.put(game.players, username, new_player(username))
       Map.put(game, :players, players)
     else
       game
     end
   end
 
-  def opponent_team_view(game, opponent_name) do
-    opponent = game.players[opponent_name]
+  def opp_pokemon_view(game, pokemon) do
+    %{
+      name: pokemon.name,
+      hp: pokemon.hp
+    }
+  end
+
+  def opp_team_view(game, opponent) do
     Enum.map(opponent.team, fn pokemon ->
       %{
-        name: pokemon.name,
-        hp: pokemon.hp
+        name: pokemon.name
       }
     end)
   end
 
-  def client_view(game, user) do
+  def client_view(game, username) do
     players = Map.keys(game.players)
     filtered_names = Enum.filter(players, fn player ->
-      player != user
+      player != username
     end)
 
     if length(filtered_names) == 1 do
-      [opponent] = filtered_names
+      [opponent_name] = filtered_names
+      opponent = game.players[opponent_name]
       %{
-        player: game.players[user],
+        player: game.players[username],
         opponent: %{
-          name: opponent,
-          team: opponent_team_view(game, opponent)
+          name: opponent_name,
+          current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
+          team: opp_team_view(game, opponent)
         }
       }
     else
       %{
-        player: game.players[user],
+        player: game.players[username],
       }
     end
   end
