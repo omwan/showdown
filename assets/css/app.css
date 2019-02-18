@@ -12,3 +12,100 @@ header {
 .games {
     margin-bottom:50px;
 }
+
+.battle {
+    display: grid;
+    grid-gap: 5px;
+    grid-template-columns: 20% 30% 30% 20%;
+    grid-template-rows: 27% 27% 10% 36%;
+    height: 60%;
+    min-height: 600px;
+    width: 100%;
+    grid-template-areas: 
+    "player-team opponent-info opponent-art opponent-team"
+    "player-team player-art player-info opponent-team"
+    "player-team battle-text battle-text opponent-team"
+    "player-team m m opponent-team";
+}
+
+.player.team {
+    grid-area: player-team;
+}
+
+.opponent.team {
+    grid-area: opponent-team;
+}
+
+
+.player.info-bar {
+    grid-area: player-info;
+}
+
+.opponent.info-bar {
+    grid-area: opponent-info;
+    text-align:right;
+}
+
+.player.artwork {
+    grid-area: player-art;
+}
+
+.artwork {
+    height: 80%;
+    width: auto;
+}
+
+.opponent.artwork {
+    grid-area: opponent-art;
+}
+
+.menu {
+    grid-area: m;
+    border: 1px dashed black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    justify-content: space-evenly;
+}
+
+.submenu {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+
+}
+
+button {
+    margin: 10px;
+    width: 40%;
+}
+
+.battle-text {
+    grid-area: battle-text;
+}
+
+.team {
+    background-color: rgb(230, 230, 230);
+}
+
+.moveset {
+    width: 100%;
+    margin: auto;
+    display: flex;
+    justify-content: space-around;
+}
+
+.move {
+    display: inline-block;
+    width: 40%;
+    border: 1px dashed black;
+    padding: 10px;
+    text-align: center;
+}
+
+.pkm-name, .move-name {
+    font-weight: 700;
+}
