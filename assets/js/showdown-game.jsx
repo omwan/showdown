@@ -7,6 +7,7 @@ export default function game_init(root, channel) {
 }
 let debug = false;
 let teams = false; // teams yet to be implemented
+
 class Showdown extends React.Component {
     constructor(props) {
         super(props);
@@ -29,11 +30,17 @@ class Showdown extends React.Component {
         console.log(this.state);
     }
 
+    selectMove(move) {
+        console.log("Submitted move: " + move);
+        this.channel.push("move", {move: move})
+            .receive("ok", this.got_view.bind(this));
+    }
+
     render() {
         return <div>
-            { debug && <RestartButton channel={this.channel}></RestartButton>}
-            { !this.state.opponent && <WaitingRoom channel={this.channel}></WaitingRoom> }
-            { this.state.opponent && <Battle channel={this.channel} state={this.state} updateView={(view) => this.got_view(view)}></Battle> }
+            { debug && <RestartButton></RestartButton>}
+            { !this.state.opponent && <WaitingRoom></WaitingRoom> }
+            { this.state.opponent && <Battle state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
 
         </div>
     }
@@ -55,8 +62,10 @@ class Battle extends React.Component {
         super(props);
         this.channel = props.channel;
         this.player = props.state.player;
-        this.opponent = props.state.opponent;                
+        this.opponent = props.state.opponent;
+        this.selectMove = props.selectMove;
     }
+
     render() {
         return <div className="battle">
     { teams && <Team name={this.player.name} team={this.player.team} classname="player"></Team> }
@@ -66,7 +75,7 @@ class Battle extends React.Component {
                 <PkmInfoBar pokemon={this.opponent.current_pokemon}  classname="opponent"></PkmInfoBar>
                 <img className="artwork opponent" src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
                 { true && <BattleText></BattleText>}
-                { true && <Menu channel={this.channel} updateView={this.props.updateView} team={this.player.team} moves={this.player.current_pokemon.moves} ></Menu>}
+                <Menu team={this.player.team} moves={this.player.current_pokemon.moves} selectMove={this.selectMove}></Menu>
             </div>
     }
 }
@@ -95,8 +104,8 @@ class Moveset extends React.Component {
     }
     render() {
         return <div className="moveset">
-            <Move move={this.moves[0]} classname="move-1"></Move>
-            <Move move={this.moves[1]} classname="move-2"></Move>
+            <Move move={this.moves[0]} className="move-1" selectMove={this.props.selectMove}></Move>
+            <Move move={this.moves[1]}  className="move-2" selectMove={this.props.selectMove}></Move>
         </div>
     }
 }
@@ -113,8 +122,12 @@ class Move extends React.Component {
     }
 
     handleClick(move) {
-        console.log(move);
-        this.channel.push("move", {move: move}).receive("ok", this.updateView.bind(this));
+
+        // this.channel.push("move", {move: this.move})
+        //     .receive("ok", )
+        // this.props.selectMove(move)
+        this.props.selectMove(move);
+        // TODO: send move to server
     }
 
     render() {
@@ -193,8 +206,8 @@ class Menu extends React.Component {
         <div className="submenu">
             {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
             {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
-            {this.state.menu == 'moves' && <Moveset updateView={this.props.updateView} channel={this.channel} moves={this.moves}></Moveset>}
-            {this.state.menu == 'pokemon'  && <SwitchPkm updateView={this.props.updateView} channel={this.channel} team={this.team}></SwitchPkm>}</div>
+            {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
+            {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
         </div>
     }
 }

@@ -5,7 +5,8 @@ defmodule Showdown.Game do
   def new do
     %{
       players: %{},
-      sequence: []
+      sequence: [],
+      submitted_moves: %{}
     }
   end
 
@@ -46,33 +47,88 @@ defmodule Showdown.Game do
     end)
   end
 
-  def client_view(game, username) do
+  def get_opponent(game, current_user) do
     players = Map.keys(game.players)
     filtered_names = Enum.filter(players, fn player ->
-      player != username
+      player != current_user
     end)
-
     if length(filtered_names) == 1 do
       [opponent_name] = filtered_names
-      opponent = game.players[opponent_name]
+      game.players[opponent_name]
+    else
+      nil
+    end
+  end
+
+  def client_view(game, username) do
+    opponent = get_opponent(game, username)
+    if opponent == nil do
       %{
-        player: game.players[username],
-        opponent: %{
-          name: opponent_name,
-          current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
-          team: opp_team_view(game, opponent)
-        }
+        player: game.players[username]
       }
     else
       %{
         player: game.players[username],
+        opponent: %{
+          name: opponent.name,
+          current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
+          team: opp_team_view(game, opponent)
+        },
+        submitted_moves: game.submitted_moves,
+        sequence: game.sequence
       }
     end
   end
 
+  def calculate_hp(game, username, move) do
+    opponent = get_opponent(game, username)
+    opp_pokemon = opponent.current_pokemon
+    opp_hp = opp_pokemon.hp
+
+    player = game.players[username]
+    player_pokemon = player.current_pokemon
+    [player_move] = Enum.filter(player_pokemon.moves, fn m ->
+      m.name == move
+    end)
+    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    max(0, opp_hp - damage)
+  end
+
+  def build_sequence(game) do
+    moves = game.submitted_moves
+    sequence = Map.to_list(moves)
+      |> Enum.sort_by(fn {username, move} ->
+        player = game.players[username]
+        current_pokemon = player.current_pokemon
+        current_pokemon.speed
+      end)
+      |> Enum.map(fn {username, move} ->
+        attacker = game.players[username]
+        att_pokemon = attacker.current_pokemon
+
+        opponent = get_opponent(game, username)
+        opp_pokemon = opponent.current_pokemon
+        %{
+          attacker: att_pokemon.name,
+          opponent: opp_pokemon.name,
+          move: move,
+          opponent_remaining_hp: calculate_hp(game, username, move)
+        }
+      end)
+    Map.put(game, :sequence, sequence)
+  end
 
   def move(game, username, move) do
-    game
+    if not Map.has_key?(game.submitted_moves, username) do
+      submitted_moves = Map.put(game.submitted_moves, username, move)
+      if map_size(submitted_moves) == 2 do
+        build_sequence(Map.put(game, :submitted_moves, submitted_moves))
+      else
+        Map.put(game, :submitted_moves, submitted_moves)
+      end
+    else
+      game
+    end
   end
 
   def get_pokemon do
