@@ -4,7 +4,7 @@ defmodule Showdown.Game do
 
   def new do
     %{
-      players: %{}
+      players: %{},
     }
   end
 
@@ -16,8 +16,12 @@ defmodule Showdown.Game do
   end
 
   def join(game, player) do
-    players = Map.put(game.players, player, new_player(player))
-    Map.put(game, :players, players)
+    if map_size(game.players) < 2 do
+      players = Map.put(game.players, player, new_player(player))
+      Map.put(game, :players, players)
+    else
+      game
+    end
   end
 
   def opponent_team_view(game, opponent_name) do
