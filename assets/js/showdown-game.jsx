@@ -66,7 +66,6 @@ class Battle extends React.Component {
 class PkmInfoBar extends React.Component {
     constructor(props) {
         super(props);
-        this.channel = props.channel;
         this.state = {};
         
     }
@@ -81,7 +80,6 @@ class PkmInfoBar extends React.Component {
 class Moveset extends React.Component {
     constructor(props) {
         super(props);
-        this.channel = props.channel;
         this.state = {};
     }
     render() {
@@ -118,5 +116,13 @@ class Result extends React.Component {
             
         </div>
     }
-    
+}
+
+class Team extends React.Component {
+    constructor(props) {
+        super(props);
+        this.channel = props.channel;
+        this.state = {};
+    }
+
 }
