@@ -25,7 +25,7 @@ defmodule ShowdownWeb.UserSocket do
     case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
       {:ok, username} ->
         IO.puts("socket connect from username = #{username}")
-        {:ok, assign(socket, :user, username)}
+        {:ok, assign(socket, :username, username)}
       {:error, _reason} ->
         :error
     end

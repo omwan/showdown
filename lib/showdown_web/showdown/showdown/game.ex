@@ -4,23 +4,32 @@ defmodule Showdown.Game do
 
   def new do
     %{
-      users: [
-        %User{
-          name: "user 1",
-          team: [get_pokemon()]
-        },
-        %User{
-          name: "user 2",
-          team: [get_pokemon()]
-        }
-      ],
-      submitted_moves: [
-      ]
+      players: %{}
     }
   end
 
+  def new_player(name) do
+    %User{
+      name: name,
+      team: [get_pokemon()]
+    }
+  end
+
+  def join(game, player) do
+    players = Map.put(game.players, player, new_player(player))
+    Map.put(game, :players, players)
+  end
+
   def client_view(game, user) do
-    game
+    players = Map.keys(game.players)
+    [opponent] = Enum.filter(players, fn player ->
+      player != user
+    end)
+    IO.puts(opponent)
+    %{
+      player: game.players[user],
+      opponent: game.players[opponent]
+    }
   end
 
   def move(game, _user, _move) do
