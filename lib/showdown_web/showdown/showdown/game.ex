@@ -5,6 +5,7 @@ defmodule Showdown.Game do
   def new do
     %{
       players: %{},
+      sequence: []
     }
   end
 
@@ -19,8 +20,12 @@ defmodule Showdown.Game do
 
   def join(game, username) do
     if map_size(game.players) < 2 do
-      players = Map.put(game.players, username, new_player(username))
-      Map.put(game, :players, players)
+      if not Map.has_key?(game.players, username) do
+        players = Map.put(game.players, username, new_player(username))
+        Map.put(game, :players, players)
+      else
+        game
+      end
     else
       game
     end
@@ -66,7 +71,7 @@ defmodule Showdown.Game do
   end
 
 
-  def move(game, _user, _move) do
+  def move(game, username, move) do
     game
   end
 
@@ -78,6 +83,7 @@ defmodule Showdown.Game do
         attack: 2,
         defense: 2,
         hp: 10,
+        max_hp: 10,
         type: "grass",
         moves: [
           %Move{
@@ -98,6 +104,7 @@ defmodule Showdown.Game do
         attack: 1,
         defense: 3,
         hp: 8,
+        max_hp: 8,
         type: "",
         moves: [
           %Move{
@@ -118,6 +125,7 @@ defmodule Showdown.Game do
         attack: 3,
         defense: 1,
         hp: 12,
+        max_hp: 12,
         moves: [
           %Move{
             name: "water gun",
