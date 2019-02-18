@@ -5,7 +5,8 @@ defmodule Showdown.Game do
   def new do
     %{
       players: %{},
-      sequence: []
+      sequence: [],
+      submitted_moves: %{}
     }
   end
 
@@ -61,7 +62,9 @@ defmodule Showdown.Game do
           name: opponent_name,
           current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
           team: opp_team_view(game, opponent)
-        }
+        },
+        submitted_moves: game.submitted_moves,
+        sequence: game.sequence
       }
     else
       %{
@@ -70,9 +73,34 @@ defmodule Showdown.Game do
     end
   end
 
+  def build_sequence(game) do
+    moves = game.submitted_moves
+    sequence = Map.to_list(moves)
+      |> Enum.sort_by(fn {username, move} ->
+        player = game.players[username]
+        current_pokemon = player.current_pokemon
+        current_pokemon.speed
+      end)
+      |> Enum.map(fn {username, move} ->
+        %{
+          username: username,
+          move: move
+        }
+      end)
+    Map.put(game, :sequence, sequence)
+  end
 
   def move(game, username, move) do
-    game
+    if not Map.has_key?(game.submitted_moves, username) do
+      submitted_moves = Map.put(game.submitted_moves, username, move)
+      if map_size(submitted_moves) == 2 do
+        build_sequence(Map.put(game, :submitted_moves, submitted_moves))
+      else
+        Map.put(game, :submitted_moves, submitted_moves)
+      end
+    else
+      game
+    end
   end
 
   def get_pokemon do
