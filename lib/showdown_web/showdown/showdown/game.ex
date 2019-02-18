@@ -20,17 +20,38 @@ defmodule Showdown.Game do
     Map.put(game, :players, players)
   end
 
+  def opponent_team_view(game, opponent_name) do
+    opponent = game.players[opponent_name]
+    Enum.map(opponent.team, fn pokemon ->
+      %{
+        name: pokemon.name,
+        hp: pokemon.hp
+      }
+    end)
+  end
+
   def client_view(game, user) do
     players = Map.keys(game.players)
-    [opponent] = Enum.filter(players, fn player ->
+    filtered_names = Enum.filter(players, fn player ->
       player != user
     end)
-    IO.puts(opponent)
-    %{
-      player: game.players[user],
-      opponent: game.players[opponent]
-    }
+
+    if length(filtered_names) == 1 do
+      [opponent] = filtered_names
+      %{
+        player: game.players[user],
+        opponent: %{
+          name: opponent,
+          team: opponent_team_view(game, opponent)
+        }
+      }
+    else
+      %{
+        player: game.players[user],
+      }
+    end
   end
+
 
   def move(game, _user, _move) do
     game
