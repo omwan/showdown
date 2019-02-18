@@ -31,9 +31,9 @@ class Showdown extends React.Component {
 
     render() {
         return <div>
-            { debug && <RestartButton></RestartButton>}
-            { !this.state.opponent && <WaitingRoom></WaitingRoom> }
-            { this.state.opponent && <Battle state={this.state}></Battle> }
+            { debug && <RestartButton channel={this.channel}></RestartButton>}
+            { !this.state.opponent && <WaitingRoom channel={this.channel}></WaitingRoom> }
+            { this.state.opponent && <Battle channel={this.channel} state={this.state} updateView={(view) => this.got_view(view)}></Battle> }
 
         </div>
     }
@@ -66,7 +66,7 @@ class Battle extends React.Component {
                 <PkmInfoBar pokemon={this.opponent.current_pokemon}  classname="opponent"></PkmInfoBar>
                 <img className="artwork opponent" src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
                 { true && <BattleText></BattleText>}
-                <Menu team={this.player.team} moves={this.player.current_pokemon.moves} ></Menu>
+                { true && <Menu channel={this.channel} updateView={this.props.updateView} team={this.player.team} moves={this.player.current_pokemon.moves} ></Menu>}
             </div>
     }
 }
@@ -96,7 +96,7 @@ class Moveset extends React.Component {
     render() {
         return <div className="moveset">
             <Move move={this.moves[0]} classname="move-1"></Move>
-            <Move move={this.moves[1]}  classname="move-2"></Move>
+            <Move move={this.moves[1]} classname="move-2"></Move>
         </div>
     }
 }
@@ -108,12 +108,13 @@ class Move extends React.Component {
         this.state = {};
         this.class = this.props.classname + " move";
         this.move = props.move;
+        this.updateView = props.updateView;
 
     }
 
     handleClick(move) {
         console.log(move);
-        // TODO: send move to server
+        this.channel.push("move", {move: move}).receive("ok", this.updateView.bind(this));
     }
 
     render() {
@@ -189,11 +190,11 @@ class Menu extends React.Component {
     render() {
         return <div className="menu">
         {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
-        <div class="submenu">
+        <div className="submenu">
             {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
             {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
-            {this.state.menu == 'moves' && <Moveset moves={this.moves}></Moveset>}
-            {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
+            {this.state.menu == 'moves' && <Moveset updateView={this.props.updateView} channel={this.channel} moves={this.moves}></Moveset>}
+            {this.state.menu == 'pokemon'  && <SwitchPkm updateView={this.props.updateView} channel={this.channel} team={this.team}></SwitchPkm>}</div>
         </div>
     }
 }
@@ -211,6 +212,7 @@ class RestartButton extends React.Component {
 class SwitchPkm extends React.Component {
     constructor(props) {
         super(props);
+        this.updateView = props.updateView;
     }
 
     render() {
