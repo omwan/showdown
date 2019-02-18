@@ -16,7 +16,7 @@ header {
 .battle {
     display: grid;
     grid-gap: 5px;
-    grid-template-columns: 20% 20% 20% 20% 20%;
+    grid-template-columns: 20% 30% 30% 20%;
     grid-template-rows: 27% 27% 10% 36%;
     height: 60%;
     min-height: 600px;
@@ -69,7 +69,6 @@ header {
     width: 100%;
     height: 100%;
     justify-content: space-evenly;
-    
 }
 
 .submenu {

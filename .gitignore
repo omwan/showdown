@@ -29,3 +29,6 @@ npm-debug.log
 # WebStorm files
 /.idea/
 *.iml
+
+# MacOS files
+*/.DS_Store
