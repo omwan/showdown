@@ -25,9 +25,18 @@ class Showdown extends React.Component {
     }
 
     got_view(view) {
-        console.log(view);
-        this.setState(view.game);
-        console.log(this.state);
+        let game = view.game;
+        console.log(game);
+        this.setState(game);
+
+        if ("sequence" in game) {
+            if (game.sequence.length === 2) {
+                setTimeout(() => {
+                    this.channel.push("apply")
+                        .receive("ok", this.got_view.bind(this))
+                }, 1000);
+            }
+        }
     }
 
     receive_broadcast(msg) {
