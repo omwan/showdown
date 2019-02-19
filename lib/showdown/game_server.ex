@@ -3,21 +3,35 @@ defmodule Showdown.GameServer do
 
   alias Showdown.Game
 
+  def start(name) do
+    spec = %{
+      id: __MODULE__,
+      start: {__MODULE__, :start_link, [name]},
+      restart: :permanent,
+      type: :worker,
+    }
+    Showdown.GameSup.start_child(spec)
+  end
+
   ## Client Interface
   def start_link(_args) do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def join(game, username) do
-    GenServer.call(__MODULE__, {:join, game, username})
+  def join(name, username) do
+    GenServer.call(__MODULE__, {:join, name, username})
   end
 
-  def view(game, username) do
-    GenServer.call(__MODULE__, {:view, game, username})
+  def view(name, username) do
+    GenServer.call(__MODULE__, {:view, name, username})
   end
 
-  def move(game, username, move) do
-    GenServer.call(__MODULE__, {:move, game, username, move})
+  def move(name, username, move) do
+    GenServer.call(__MODULE__, {:move, name, username, move})
+  end
+
+  def apply(name, username) do
+    GenServer.call(__MODULE__, {:view, name, username})
   end
 
   ## Implementations
@@ -25,21 +39,28 @@ defmodule Showdown.GameServer do
     {:ok, state}
   end
 
-  def handle_call({:join, game, username}, _from, state) do
-    new_game = Map.get(state, game, Game.new)
-        |> Game.join(username)
-    {:reply, Game.client_view(new_game, username), Map.put(state, game, new_game)}
+  def handle_call({:join, name, username}, _from, state) do
+    game = Map.get(state, name, Game.new)
+           |> Game.join(username)
+    {:reply, Game.client_view(game, username), Map.put(state, name, game)}
   end
 
-  def handle_call({:view, game, username}, _from, state) do
-    new_game = Map.get(state, game, Game.new)
-    {:reply, Game.client_view(new_game, username), Map.put(state, game, new_game)}
+  def handle_call({:view, name, username}, _from, state) do
+    game = Map.get(state, name, Game.new)
+    {:reply, Game.client_view(game, username), Map.put(state, name, game)}
   end
 
-  def handle_call({:move, game, username, move}, _from, state) do
-    new_game = Map.get(state, game, Game.new)
-         |> Game.move(username, move)
-    view = Game.client_view(new_game, username)
-    {:reply, view, Map.put(state, game, new_game)}
+  def handle_call({:move, name, username, move}, _from, state) do
+    game = Map.get(state, name, Game.new)
+           |> Game.move(username, move)
+    view = Game.client_view(game, username)
+    {:reply, view, Map.put(state, name, game)}
+  end
+
+  def handle_call({:apply, name, username}, _from, state) do
+    game = Map.get(state, name, Game.new)
+           |> Game.apply(username)
+    view = Game.client_view(game, username)
+    {:reply, view, Map.put(state, name, game)}
   end
 end
