@@ -31,7 +31,7 @@ defmodule Showdown.GameServer do
   end
 
   def apply(name, username) do
-    GenServer.call(__MODULE__, {:view, name, username})
+    GenServer.call(__MODULE__, {:apply, name, username})
   end
 
   ## Implementations
@@ -53,8 +53,6 @@ defmodule Showdown.GameServer do
   def handle_call({:move, name, username, move}, _from, state) do
     game = Map.get(state, name, Game.new)
            |> Game.move(username, move)
-            # TODO remove this line once animation is implemented in frontend
-           |> Game.apply(username)
     view = Game.client_view(game, username)
     {:reply, view, Map.put(state, name, game)}
   end

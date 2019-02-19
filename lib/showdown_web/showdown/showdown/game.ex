@@ -21,12 +21,8 @@ defmodule Showdown.Game do
 
   def join(game, username) do
     if map_size(game.players) < 2 do
-      if not Map.has_key?(game.players, username) do
-        players = Map.put(game.players, username, new_player(username))
-        Map.put(game, :players, players)
-      else
-        game
-      end
+      players = Map.put_new(game.players, username, new_player(username))
+      Map.put(game, :players, players)
     else
       game
     end
@@ -75,9 +71,8 @@ defmodule Showdown.Game do
           current_pokemon: opp_pokemon_view(opponent.current_pokemon),
           team: opp_team_view(opponent)
         },
-        submitted_moves: Enum.map(game.submitted_moves, fn {name, _move} ->
-          name
-        end),
+        submitted_moves: map_size(game.submitted_moves),
+        player_move: game.submitted_moves[username],
         sequence: game.sequence
       }
     end
