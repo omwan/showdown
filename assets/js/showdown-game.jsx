@@ -12,22 +12,38 @@ class Showdown extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel;
-        this.state = {
-            users: [],
-            submitted_moves: []
-        };
+        this.state = {};
+
         this.channel
             .join()
             .receive("ok", this.got_view.bind(this))
             .receive("error", resp => {
                 console.log("Unable to join", resp);
             });
+
+        this.channel.on("move", this.receive_broadcast.bind(this));
     }
 
     got_view(view) {
-        console.log(view);
-        this.setState(view.game);
-        console.log(this.state);
+        let game = view.game;
+        console.log(game);
+        this.setState(game);
+
+        if ("sequence" in game) {
+            if (game.sequence.length === 2) {
+                setTimeout(() => {
+                    this.channel.push("apply")
+                        .receive("ok", this.got_view.bind(this))
+                }, 1000);
+            }
+        }
+    }
+
+    receive_broadcast(msg) {
+        this.setState(_.assign({}, this.state, msg));
+        this.channel.push("view")
+            .receive("ok", this.got_view.bind(this));
+        console.log(msg);
     }
 
     selectMove(move) {
@@ -86,7 +102,7 @@ class PkmInfoBar extends React.Component {
         this.state = {};
         this.pokemon = props.pokemon;
         this.class = this.props.classname + " info-bar";
-        
+
     }
     render() {
         return <div className={this.class}>
@@ -137,10 +153,10 @@ class Move extends React.Component {
                 <div className="move-power">power: {this.move.power}</div>
 
             </div>
-            
+
         </div>
     }
-    
+
 }
 // class Result extends React.Component {
 //     constructor(props) {
@@ -151,7 +167,7 @@ class Move extends React.Component {
 //     // result + button to redirect to / ?
 //     render() {
 //         return <div className="redirect">
-            
+
 //         </div>
 //     }
 // }
@@ -170,7 +186,7 @@ class Team extends React.Component {
 }
 
 class BattleText extends React.Component {
-    
+
     constructor(props) {
         super(props);
         this.channel = props.channel;
