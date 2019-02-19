@@ -17,8 +17,13 @@ defmodule ShowdownWeb.GamesChannel do
   def handle_in("move", %{"move" => move}, socket) do
     view = GameServer.move(socket.assigns[:game],
       socket.assigns[:username], move)
-    broadcast(socket, "move", %{"game" => view})
+    broadcast(socket, "move", %{submitted_moves: view.submitted_moves})
     {:noreply, socket}
+  end
+
+  def handle_in("view", _params, socket) do
+    view = GameServer.view(socket.assigns[:game], socket.assigns[:username])
+    {:reply, {:ok, %{"game" => view}}, socket}
   end
 
   def handle_in("apply", _params, socket) do

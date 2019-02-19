@@ -75,7 +75,9 @@ defmodule Showdown.Game do
           current_pokemon: opp_pokemon_view(opponent.current_pokemon),
           team: opp_team_view(opponent)
         },
-        submitted_moves: map_size(game.submitted_moves),
+        submitted_moves: Enum.map(game.submitted_moves, fn {name, _move} ->
+          name
+        end),
         sequence: game.sequence
       }
     end
@@ -210,6 +212,7 @@ defmodule Showdown.Game do
         defense: 3,
         hp: 36,
         max_hp: 36,
+        type: "water",
         moves: [
           %Move{
             name: "water gun",
