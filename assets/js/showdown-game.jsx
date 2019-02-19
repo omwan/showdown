@@ -100,12 +100,25 @@ class Moveset extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
+            movesDisabled: false
+        };
         this.moves = props.moves;
     }
+
+    selectMove(move) {
+        this.props.selectMove(move);
+    }
+
     render() {
+        let moves = [];
+        for (let i = 0; i < this.moves.length; i++) {
+            let move = moves[i];
+            moves.push(
+                <Move key={i} move={this.moves[i]} selectMove={this.props.selectMove}></Move>
+            );
+        }
         return <div className="moveset">
-            <Move move={this.moves[0]} className="move-1" selectMove={this.props.selectMove}></Move>
-            <Move move={this.moves[1]}  className="move-2" selectMove={this.props.selectMove}></Move>
+            {moves}
         </div>
     }
 }
@@ -117,15 +130,12 @@ class Move extends React.Component {
         this.state = {};
         this.class = this.props.classname + " move";
         this.move = props.move;
-        this.updateView = props.updateView;
-
     }
 
     handleClick(move) {
 
         // this.channel.push("move", {move: this.move})
         //     .receive("ok", )
-        // this.props.selectMove(move)
         this.props.selectMove(move);
         // TODO: send move to server
     }

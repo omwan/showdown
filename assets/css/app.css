@@ -110,3 +110,25 @@ button {
 .pkm-name, .move-name {
     font-weight: 700;
 }
+  
+/* The typing effect */
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@-webkit-keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+  }
+
+    @-moz-keyframes typing {
+        from { width: 0 }
+        to { width: 100% }
+      }
+.typewriter {
+    overflow: hidden; /* Ensures the content is not revealed until the animation */
+    white-space: nowrap; /* Keeps the content on a single line */
+    letter-spacing: .15em; /* Adjust as needed */
+    animation: typing 1.0s steps(40, end);
+  }
