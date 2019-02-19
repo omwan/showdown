@@ -32,14 +32,15 @@ defmodule Showdown.Game do
     end
   end
 
-  def opp_pokemon_view(game, pokemon) do
+  def opp_pokemon_view(pokemon) do
     %{
       name: pokemon.name,
-      hp: pokemon.hp
+      hp: pokemon.hp,
+      max_hp: pokemon.max_hp
     }
   end
 
-  def opp_team_view(game, opponent) do
+  def opp_team_view(opponent) do
     Enum.map(opponent.team, fn pokemon ->
       %{
         name: pokemon.name
@@ -71,10 +72,10 @@ defmodule Showdown.Game do
         player: game.players[username],
         opponent: %{
           name: opponent.name,
-          current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
-          team: opp_team_view(game, opponent)
+          current_pokemon: opp_pokemon_view(opponent.current_pokemon),
+          team: opp_team_view(opponent)
         },
-        submitted_moves: game.submitted_moves,
+        submitted_moves: map_size(game.submitted_moves),
         sequence: game.sequence
       }
     end
@@ -91,13 +92,14 @@ defmodule Showdown.Game do
       m.name == move
     end)
     damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    IO.puts(damage)
     max(0, opp_hp - damage)
   end
 
   def build_sequence(game) do
     moves = game.submitted_moves
     sequence = Map.to_list(moves)
-      |> Enum.sort_by(fn {username, move} ->
+      |> Enum.sort_by(fn {username, _move} ->
         player = game.players[username]
         current_pokemon = player.current_pokemon
         current_pokemon.speed
@@ -109,8 +111,10 @@ defmodule Showdown.Game do
         opponent = get_opponent(game, username)
         opp_pokemon = opponent.current_pokemon
         %{
+          player: username,
+          opponent: opponent.name,
           attacker: att_pokemon.name,
-          opponent: opp_pokemon.name,
+          recipient: opp_pokemon.name,
           move: move,
           opponent_remaining_hp: calculate_hp(game, username, move)
         }
@@ -131,6 +135,31 @@ defmodule Showdown.Game do
     end
   end
 
+  def apply(game, _username) do
+    if length(game.sequence) == 2 do
+      updates = game.sequence
+        |> Enum.map(fn item ->
+             {item.opponent, item.opponent_remaining_hp}
+           end)
+        |> Map.new
+
+      players = Enum.map(game.players, fn {name, player} ->
+        update = updates[name]
+        pokemon = Map.put(player.current_pokemon, :hp, update)
+        team = Enum.map(player.team, fn pkmn ->
+          if pkmn.name == pokemon.name do
+            Map.put(pkmn, :hp, update)
+          end
+        end)
+        {name, Map.put(Map.put(player, :team, team), :current_pokemon, pokemon)}
+      end)
+        |> Map.new
+      %{game | players: players, sequence: [], submitted_moves: %{}}
+    else
+      game
+    end
+  end
+
   def get_pokemon do
     pokemon = [
       %Pokemon{
@@ -138,8 +167,8 @@ defmodule Showdown.Game do
         speed: 2,
         attack: 2,
         defense: 2,
-        hp: 10,
-        max_hp: 10,
+        hp: 30,
+        max_hp: 30,
         type: "grass",
         moves: [
           %Move{
@@ -156,12 +185,12 @@ defmodule Showdown.Game do
       },
       %Pokemon{
         name: "charmander",
-        speed: 1,
-        attack: 1,
-        defense: 3,
-        hp: 8,
-        max_hp: 8,
-        type: "",
+        speed: 3,
+        attack: 3,
+        defense: 1,
+        hp: 24,
+        max_hp: 24,
+        type: "fire",
         moves: [
           %Move{
             name: "ember",
@@ -177,11 +206,11 @@ defmodule Showdown.Game do
       },
       %Pokemon{
         name: "squirtle",
-        speed: 3,
-        attack: 3,
-        defense: 1,
-        hp: 12,
-        max_hp: 12,
+        speed: 1,
+        attack: 1,
+        defense: 3,
+        hp: 36,
+        max_hp: 36,
         moves: [
           %Move{
             name: "water gun",

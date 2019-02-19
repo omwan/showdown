@@ -10,7 +10,8 @@ defmodule Showdown.Application do
       ShowdownWeb.Endpoint,
       # Start your own worker by calling: Showdown.Worker.start_link(arg1, arg2, arg3)
       # worker(Showdown.Worker, [arg1, arg2, arg3]),
-      Showdown.GameServer,
+      Showdown.GameSup,
+      Showdown.GameServer
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
