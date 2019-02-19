@@ -83,6 +83,38 @@ defmodule Showdown.Game do
     end
   end
 
+  def calculate_modifier(opp_type, move_type) do
+    case opp_type do
+      "fire" ->
+        case move_type do
+          "water" ->
+            2.0
+          "grass" ->
+            0.5
+          _ ->
+            1
+        end
+      "water" ->
+        case move_type do
+          "grass" ->
+            2.0
+          "fire" ->
+            0.5
+          _ ->
+            1
+        end
+      "grass" ->
+        case move_type do
+          "water" ->
+            2.0
+          "fire" ->
+            0.5
+          _ ->
+            1
+        end
+    end
+  end
+
   def calculate_hp(game, username, move) do
     opponent = get_opponent(game, username)
     opp_pokemon = opponent.current_pokemon
@@ -93,7 +125,8 @@ defmodule Showdown.Game do
     [player_move] = Enum.filter(player_pokemon.moves, fn m ->
       m.name == move
     end)
-    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    modifier = calculate_modifier(opp_pokemon.type, player_move.type)
+    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power * modifier)
     max(0, opp_hp - damage)
   end
 
