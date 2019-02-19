@@ -92,7 +92,6 @@ defmodule Showdown.Game do
       m.name == move
     end)
     damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
-    IO.puts(damage)
     max(0, opp_hp - damage)
   end
 

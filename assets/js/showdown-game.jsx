@@ -16,12 +16,15 @@ class Showdown extends React.Component {
             users: [],
             submitted_moves: []
         };
+
         this.channel
             .join()
             .receive("ok", this.got_view.bind(this))
             .receive("error", resp => {
                 console.log("Unable to join", resp);
             });
+
+       this.channel.on("move", this.got_view.bind(this));
     }
 
     got_view(view) {
