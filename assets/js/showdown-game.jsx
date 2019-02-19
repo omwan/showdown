@@ -100,8 +100,6 @@ class Moveset extends React.Component {
     constructor(props) {
         super(props);
         this.state = {};
-            movesDisabled: false
-        };
         this.moves = props.moves;
     }
 
