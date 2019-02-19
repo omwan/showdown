@@ -78,7 +78,7 @@ defmodule Showdown.Game do
     end
   end
 
-  def calculate_modifier(opp_type, move_type) do
+  def type_effectiveness(opp_type, move_type) do
     case opp_type do
       "fire" ->
         case move_type do
@@ -100,14 +100,36 @@ defmodule Showdown.Game do
         end
       "grass" ->
         case move_type do
-          "water" ->
-            2.0
           "fire" ->
+            2.0
+          "water" ->
             0.5
           _ ->
             1
         end
     end
+  end
+
+  def stab(pokemon_type, move_type) do
+    if pokemon_type == move_type do
+      1.5
+    else
+      1
+    end
+  end
+
+  def calculate_modifier(opp_type, move_type, pokemon_type) do
+    stab = stab(pokemon_type, move_type)
+    te = type_effectiveness(opp_type, move_type)
+    IO.puts(stab)
+    IO.puts(te)
+    stab * te
+  end
+
+  def calculate_damage(player_pokemon, player_move, opp_pokemon) do
+    modifier = calculate_modifier(opp_pokemon.type, player_move.type, player_pokemon.type)
+    base_damage = ((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    trunc((base_damage / 10) * modifier)
   end
 
   def calculate_hp(game, username, move) do
@@ -120,8 +142,8 @@ defmodule Showdown.Game do
     [player_move] = Enum.filter(player_pokemon.moves, fn m ->
       m.name == move
     end)
-    modifier = calculate_modifier(opp_pokemon.type, player_move.type)
-    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power * modifier)
+
+    damage = calculate_damage(player_pokemon, player_move, opp_pokemon)
     max(0, opp_hp - damage)
   end
 
@@ -193,64 +215,64 @@ defmodule Showdown.Game do
     pokemon = [
       %Pokemon{
         name: "bulbasaur",
-        speed: 2,
-        attack: 2,
-        defense: 2,
-        hp: 30,
-        max_hp: 30,
+        speed: 45,
+        attack: 49,
+        defense: 49,
+        hp: 45,
+        max_hp: 45,
         type: "grass",
         moves: [
           %Move{
             name: "vine whip",
             type: "grass",
-            power: 2
+            power: 45
           },
           %Move{
             name: "tackle",
             type: "normal",
-            power: 2
+            power: 40
           }
         ]
       },
       %Pokemon{
         name: "charmander",
-        speed: 3,
-        attack: 3,
-        defense: 1,
-        hp: 24,
-        max_hp: 24,
+        speed: 39,
+        attack: 52,
+        defense: 43,
+        hp: 39,
+        max_hp: 39,
         type: "fire",
         moves: [
           %Move{
             name: "ember",
             type: "fire",
-            power: 2
+            power: 40
           },
           %Move{
             name: "scratch",
             type: "normal",
-            power: 2
+            power: 40
           }
         ]
       },
       %Pokemon{
         name: "squirtle",
-        speed: 1,
-        attack: 1,
-        defense: 3,
-        hp: 36,
-        max_hp: 36,
+        speed: 43,
+        attack: 48,
+        defense: 65,
+        hp: 44,
+        max_hp: 44,
         type: "water",
         moves: [
           %Move{
             name: "water gun",
             type: "water",
-            power: 2
+            power: 40
           },
           %Move{
             name: "tackle",
             type: "normal",
-            power: 2
+            power: 40
           }
         ]
       }
