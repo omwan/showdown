@@ -8,10 +8,16 @@ defmodule ShowdownWeb.GamesChannel do
       socket = assign(socket, :game, game)
       view = GameServer.join(game, socket.assigns[:username])
       msg = %{"join" => game, "game" => view}
+      send(self(), :after_join)
       {:ok, msg, socket}
     else
       {:error, %{reason: "unauthorized"}}
     end
+  end
+
+  def handle_info(:after_join, socket) do
+    broadcast(socket, "join", %{})
+    {:noreply, socket}
   end
 
   def handle_in("move", %{"move" => move}, socket) do
