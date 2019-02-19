@@ -19,6 +19,11 @@ defmodule ShowdownWeb.GamesChannel do
     {:reply, {:ok, %{"game" => view}}, socket}
   end
 
+  def handle_in("apply", _params, socket) do
+    view = GameServer.apply(socket.assigns[:game], socket.assigns[:username])
+    {:reply, {:ok, %{"game" => view}}, socket}
+  end
+
   # Add authorization logic here as required.
   defp authorized?(_payload) do
     true

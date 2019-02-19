@@ -75,7 +75,7 @@ defmodule Showdown.Game do
           current_pokemon: opp_pokemon_view(game, opponent.current_pokemon),
           team: opp_team_view(game, opponent)
         },
-        submitted_moves: game.submitted_moves,
+        submitted_moves: map_size(game.submitted_moves),
         sequence: game.sequence
       }
     end
@@ -91,7 +91,8 @@ defmodule Showdown.Game do
     [player_move] = Enum.filter(player_pokemon.moves, fn m ->
       m.name == move
     end)
-    damage = (player_pokemon.attack / opp_pokemon.defense) * player_move.power
+    damage = trunc((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    IO.puts(damage)
     max(0, opp_hp - damage)
   end
 
@@ -166,8 +167,8 @@ defmodule Showdown.Game do
         speed: 2,
         attack: 2,
         defense: 2,
-        hp: 10,
-        max_hp: 10,
+        hp: 30,
+        max_hp: 30,
         type: "grass",
         moves: [
           %Move{
@@ -187,8 +188,8 @@ defmodule Showdown.Game do
         speed: 3,
         attack: 3,
         defense: 1,
-        hp: 8,
-        max_hp: 8,
+        hp: 24,
+        max_hp: 24,
         type: "",
         moves: [
           %Move{
@@ -208,8 +209,8 @@ defmodule Showdown.Game do
         speed: 1,
         attack: 1,
         defense: 3,
-        hp: 12,
-        max_hp: 12,
+        hp: 36,
+        max_hp: 36,
         moves: [
           %Move{
             name: "water gun",
