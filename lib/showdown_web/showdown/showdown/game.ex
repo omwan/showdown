@@ -207,7 +207,7 @@ defmodule Showdown.Game do
     end
   end
 
-  def end_game(game, username, sequence) do
+  def end_game(game, sequence) do
     winner = get_winner(sequence)
     game = Map.put(game, :winner, winner.player)
     if Enum.at(sequence, 0) == winner do
@@ -223,9 +223,9 @@ defmodule Showdown.Game do
       if map_size(submitted_moves) == 2 do
         sequence = build_sequence(Map.put(game, :submitted_moves, submitted_moves))
         if has_ended?(sequence) do
-          end_game(game, username, sequence)
+          end_game(Map.put(game, :submitted_moves, submitted_moves), sequence)
         else
-          Map.put(game, :sequence, sequence)
+          %{game | submitted_moves: submitted_moves, sequence: sequence}
         end
       else
         Map.put(game, :submitted_moves, submitted_moves)
@@ -236,7 +236,7 @@ defmodule Showdown.Game do
   end
 
   def apply(game, _username) do
-    if length(game.sequence) == 2 do
+    if length(game.sequence) > 0 do
       updates = game.sequence
         |> Enum.map(fn item ->
              {item.opponent, item.opponent_remaining_hp}
