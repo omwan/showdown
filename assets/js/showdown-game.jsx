@@ -45,31 +45,35 @@ class Showdown extends React.Component {
     animate() {
         let state = _.assign({}, this.state);
         let seq1 = state.sequence[0];
-        let seq2 = state.sequence[1];
-        let text1 = seq1.attacker + " used " + seq1.move + " on " + seq1.recipient + "!";
-        let text2 = seq2.attacker + " used " + seq2.move + " on " + seq2.recipient + "!";
+        let text1 = seq1.player + "'s " + seq1.attacker + " used " + seq1.move + " on " + seq1.opponent + "'s " + seq1.recipient + "!";
         let recipient1 = state.player.name != seq1.player ? "player" : "opponent";
-        let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
-        let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
-        
+        let seq2 = state.sequence[1];
         this.setState({text: text1});
-        
-        setTimeout(() => {
+
+        delay(3000).then(() => {
             let p1 = _.assign({}, this.state[recipient1], {hp: seq1.opponent_remaining_hp});
             this.setState({[recipient1]: p1});
-            setTimeout(() => {
+            return delay(1000);
+        }).then(() => {
+            if (seq2) {
+                let text2 = seq2.player + "'s " + seq2.attacker + " used " + seq2.move + " on " + seq2.opponent + "'s " + seq2.recipient + "!";
+                let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
+                let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
                 this.setState({text: ""});
-
                 this.setState({text: text2});
-                setTimeout(() => {
-                    this.setState({[recipient2]: p2})
-                    setTimeout(() => {
-                        this.channel.push("apply")
-                            .receive("ok", this.got_view.bind(this));
-                    }, 1000);
-                }, 3000);
-            }, 1000);
-        }, 3000);
+                
+                delay(3000).then(() => {
+                    this.setState({[recipient2]: p2});
+                    return delay(1000);
+                }).then(() => {
+                    this.channel.push("apply")
+                        .receive("ok", this.got_view.bind(this));
+                });
+            } else {
+                this.channel.push("apply")
+                    .receive("ok", this.got_view.bind(this));
+            }
+        });
     }
 
     receive_broadcast(msg) {
@@ -103,6 +107,7 @@ class Battle extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel;
+        this.state = {};
         this.player = () => this.props.state.player;
         this.opponent = () => this.props.state.opponent;
         this.text = () => this.props.state.text;
@@ -245,4 +250,10 @@ class SwitchPkm extends React.Component {
     render() {
         return <div></div>
     }
+}
+
+function delay(time) {
+    return new Promise( r => {
+        setTimeout(r, time);
+    });
 }
