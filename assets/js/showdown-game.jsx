@@ -37,7 +37,6 @@ class Showdown extends React.Component {
         this.setState(game);
         let sequence = game.sequence;
         if (game.sequence && game.sequence.length > 0) {
-            this.setState({sequence: [], animating: true});
             this.animate(sequence);
         }
     }
@@ -45,11 +44,7 @@ class Showdown extends React.Component {
     animate(sequence) {
         let seq = sequence[0];
         if (typeof seq === 'undefined') {
-            this.channel.push("apply")
-                    .receive("ok", (resp) => {
-                        resp.sequence = [];
-                        this.got_view(resp);
-                    });
+            this.channel.push("apply").receive("ok", this.got_view.bind(this));
         } else {
             let text = [seq.player + "'s", seq.attacker, "used", seq.move, "on", seq.opponent + "'s", seq.recipient + "!"].join(" ");
             let recipient = this.state.player == seq.player ? "player" : "opponent";
