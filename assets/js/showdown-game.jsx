@@ -114,12 +114,12 @@ class Battle extends React.Component {
                 <Team name={this.player().name} team={this.player().team} classname="player"></Team> 
                 <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> 
                 <div className="artwork player">
-                    <img src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
+                    <img src={"../images/" + this.player().current_pokemon.name + ".png"}></img>
                 </div>
                 <PkmInfoBar owner={this.player()} classname="player"></PkmInfoBar>
                 <PkmInfoBar owner={this.opponent()}  classname="opponent"></PkmInfoBar>
                 <div className="artwork opponent">
-                    <img src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
+                    <img src={"../images/" + this.opponent().current_pokemon.name + ".png"}></img>
                 </div>
 
                 { this.text() && <BattleText text={this.text()}></BattleText>}

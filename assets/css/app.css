@@ -49,6 +49,10 @@ header {
 
 .player.artwork {
     grid-area: player-art;
+    -moz-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    transform: scaleX(-1);
 }
 
 .artwork {
