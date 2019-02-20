@@ -76,7 +76,7 @@ defmodule Showdown.Game do
         player: game.players[username]
       }
     else
-      %{
+      view = %{
         player: game.players[username],
         opponent: %{
           name: opponent.name,
@@ -86,8 +86,12 @@ defmodule Showdown.Game do
         submitted_moves: map_size(game.submitted_moves),
         player_move: game.submitted_moves[username],
         sequence: game.sequence,
-        finished: get_win_lose(game, username),
       }
+      if length(game.sequence) == 0 do
+        Map.put(view, :finished, get_win_lose(game, username))
+      else
+        view
+      end
     end
   end
 
