@@ -29,13 +29,15 @@ class Showdown extends React.Component {
     got_view(view) {
         let game = view.game;
         game.text = "";
-        game.player.hp = game.player.current_pokemon.hp;
-        game.opponent.hp = game.opponent.current_pokemon.hp;
+        if (game.opponent) {
+            game.player.hp = game.player.current_pokemon.hp;
+            game.opponent.hp = game.opponent.current_pokemon.hp;
+        }
         console.log(game);
         this.setState(game);
         let sequence = game.sequence;
         if (sequence) {
-            if (sequence.length === 2) {
+            if (sequence.length > 0) {
                 this.animate(game);
                 
             }
@@ -62,15 +64,15 @@ class Showdown extends React.Component {
                 this.setState({text: ""});
                 this.setState({text: text2});
                 
-                delay(3000).then(() => {
+                return delay(3000).then(() => {
                     this.setState({[recipient2]: p2});
                     return delay(1000);
                 }).then(() => {
-                    this.channel.push("apply")
+                    return this.channel.push("apply")
                         .receive("ok", this.got_view.bind(this));
                 });
             } else {
-                this.channel.push("apply")
+                return this.channel.push("apply")
                     .receive("ok", this.got_view.bind(this));
             }
         });
