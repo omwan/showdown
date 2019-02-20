@@ -22,6 +22,7 @@ class Showdown extends React.Component {
             });
 
         this.channel.on("move", this.receive_broadcast.bind(this));
+        this.channel.on("join", this.receive_broadcast.bind(this));
     }
 
     got_view(view) {
@@ -40,10 +41,10 @@ class Showdown extends React.Component {
     }
 
     receive_broadcast(msg) {
+        console.log("broadcast received", msg);
         this.setState(_.assign({}, this.state, msg));
         this.channel.push("view")
             .receive("ok", this.got_view.bind(this));
-        console.log(msg);
     }
 
     selectMove(move) {
@@ -51,6 +52,7 @@ class Showdown extends React.Component {
         this.channel.push("move", {move: move})
             .receive("ok", this.got_view.bind(this));
     }
+
 
     render() {
         return <div>
@@ -62,54 +64,41 @@ class Showdown extends React.Component {
     }
 }
 
-class WaitingRoom extends React.Component {
-    constructor(props) {
-        super(props);
-        this.channel = props.channel;
-        this.state = {};
-    }
-    render() {
-        return <div className="waiting-room">Waiting for another user to join.</div>
-    }
+function WaitingRoom(props) {
+    return <div className="waiting-room">Waiting for another user to join.</div>;
 }
 
 class Battle extends React.Component {
     constructor(props) {
         super(props);
         this.channel = props.channel;
-        this.player = props.state.player;
-        this.opponent = props.state.opponent;
+        this.player = () => this.props.state.player;
+        this.opponent = () => this.props.state.opponent;
         this.selectMove = props.selectMove;
     }
 
     render() {
         return <div className="battle">
-    { teams && <Team name={this.player.name} team={this.player.team} classname="player"></Team> }
-    { teams && <Team name={this.opponent.name} team={this.opponent.team} classname="opponent"></Team> }
+    { teams && <Team name={this.player().name} team={this.player().team} classname="player"></Team> }
+    { teams && <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> }
                 <img className="artwork player" src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
-                <PkmInfoBar pokemon={this.player.current_pokemon} classname="player"></PkmInfoBar>
-                <PkmInfoBar pokemon={this.opponent.current_pokemon}  classname="opponent"></PkmInfoBar>
+                <PkmInfoBar pokemon={this.player().current_pokemon} classname="player"></PkmInfoBar>
+                <PkmInfoBar pokemon={this.opponent().current_pokemon}  classname="opponent"></PkmInfoBar>
                 <img className="artwork opponent" src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
                 { true && <BattleText></BattleText>}
-                <Menu team={this.player.team} moves={this.player.current_pokemon.moves} selectMove={this.selectMove}></Menu>
+                <Menu team={this.player().team} moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Menu>
             </div>
     }
 }
 
-class PkmInfoBar extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {};
-        this.pokemon = props.pokemon;
-        this.class = this.props.classname + " info-bar";
-
-    }
-    render() {
-        return <div className={this.class}>
-            <div className="pkm-name">{this.pokemon.name}</div>
-            <div className="pkm-hp">{this.pokemon.hp} / {this.pokemon.max_hp}</div>
-        </div>
-    }
+function PkmInfoBar(props) {
+        console.log("PROPS: " + JSON.stringify(props));
+        let pokemon = props.pokemon || "";
+        let c = props.classname + " info-bar";
+        return <div className={c}>
+            <div className="pkm-name">{pokemon.name}</div>
+            <div className="pkm-hp">{pokemon.hp} / {pokemon.max_hp}</div>
+        </div>;
 }
 
 class Moveset extends React.Component {
@@ -118,10 +107,21 @@ class Moveset extends React.Component {
         this.state = {};
         this.moves = props.moves;
     }
+
+    selectMove(move) {
+        this.props.selectMove(move);
+    }
+
     render() {
+        let moves = [];
+        for (let i = 0; i < this.moves.length; i++) {
+            let move = moves[i];
+            moves.push(
+                <Move key={i} move={this.moves[i]} selectMove={this.props.selectMove}></Move>
+            );
+        }
         return <div className="moveset">
-            <Move move={this.moves[0]} className="move-1" selectMove={this.props.selectMove}></Move>
-            <Move move={this.moves[1]}  className="move-2" selectMove={this.props.selectMove}></Move>
+            {moves}
         </div>
     }
 }
@@ -133,14 +133,12 @@ class Move extends React.Component {
         this.state = {};
         this.class = this.props.classname + " move";
         this.move = props.move;
-
     }
 
     handleClick(move) {
 
         // this.channel.push("move", {move: this.move})
         //     .receive("ok", )
-        // this.props.selectMove(move)
         this.props.selectMove(move);
         // TODO: send move to server
     }
@@ -240,6 +238,7 @@ class RestartButton extends React.Component {
 class SwitchPkm extends React.Component {
     constructor(props) {
         super(props);
+        this.updateView = props.updateView;
     }
 
     render() {

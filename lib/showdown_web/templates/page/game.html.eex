@@ -4,7 +4,6 @@
 
 <div class="row">
   <div class="column">
-    <h1>Showdown Game: <%= @game %></h1>
     <div id="root">
       <p>React app not loaded...</p>
     </div>
