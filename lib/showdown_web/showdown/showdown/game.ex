@@ -6,7 +6,8 @@ defmodule Showdown.Game do
     %{
       players: %{},
       sequence: [],
-      submitted_moves: %{}
+      submitted_moves: %{},
+      winner: ""
     }
   end
 
@@ -57,6 +58,17 @@ defmodule Showdown.Game do
     end
   end
 
+  def get_win_lose(game, username) do
+    cond do
+      game.winner == "" ->
+        ""
+      game.winner == username ->
+        "won"
+      true ->
+       "lost"
+    end
+  end
+
   def client_view(game, username) do
     opponent = get_opponent(game, username)
     if opponent == nil do
@@ -64,7 +76,7 @@ defmodule Showdown.Game do
         player: game.players[username]
       }
     else
-      %{
+      view = %{
         player: game.players[username],
         opponent: %{
           name: opponent.name,
@@ -73,8 +85,13 @@ defmodule Showdown.Game do
         },
         submitted_moves: map_size(game.submitted_moves),
         player_move: game.submitted_moves[username],
-        sequence: game.sequence
+        sequence: game.sequence,
       }
+      if length(game.sequence) == 0 do
+        Map.put(view, :finished, get_win_lose(game, username))
+      else
+        view
+      end
     end
   end
 
@@ -121,8 +138,6 @@ defmodule Showdown.Game do
   def calculate_modifier(opp_type, move_type, pokemon_type) do
     stab = stab(pokemon_type, move_type)
     te = type_effectiveness(opp_type, move_type)
-    IO.puts(stab)
-    IO.puts(te)
     stab * te
   end
 
@@ -155,6 +170,7 @@ defmodule Showdown.Game do
         current_pokemon = player.current_pokemon
         current_pokemon.speed
       end)
+      |> Enum.reverse
       |> Enum.map(fn {username, move} ->
         attacker = game.players[username]
         att_pokemon = attacker.current_pokemon
@@ -170,14 +186,47 @@ defmodule Showdown.Game do
           opponent_remaining_hp: calculate_hp(game, username, move)
         }
       end)
-    Map.put(game, :sequence, sequence)
+    sequence
+  end
+
+  def has_ended?(sequence) do
+    fainted_pokemon = Enum.filter(sequence, fn event ->
+      event.opponent_remaining_hp == 0
+    end)
+    length(fainted_pokemon) > 0
+  end
+
+  def get_winner(sequence) do
+    cond do
+      sequence == [] ->
+        nil
+      hd(sequence).opponent_remaining_hp == 0 ->
+        hd(sequence)
+      true ->
+        get_winner(tl(sequence))
+    end
+  end
+
+  def end_game(game, username, sequence) do
+    winner = get_winner(sequence)
+    game = Map.put(game, :winner, winner.player)
+    if Enum.at(sequence, 0) == winner do
+      Map.put(game, :sequence, [hd(sequence)])
+    else
+      Map.put(game, :sequence, sequence)
+    end
   end
 
   def move(game, username, move) do
     if not Map.has_key?(game.submitted_moves, username) do
       submitted_moves = Map.put(game.submitted_moves, username, move)
       if map_size(submitted_moves) == 2 do
-        build_sequence(Map.put(game, :submitted_moves, submitted_moves))
+        sequence = build_sequence(Map.put(game, :submitted_moves, submitted_moves))
+        if has_ended?(sequence) do
+          end_game(game, username, sequence)
+        else
+          Map.put(game, :sequence, sequence)
+        end
       else
         Map.put(game, :submitted_moves, submitted_moves)
       end
@@ -218,7 +267,7 @@ defmodule Showdown.Game do
         speed: 45,
         attack: 49,
         defense: 49,
-        hp: 45,
+        hp: 15,
         max_hp: 45,
         type: "grass",
         moves: [
@@ -236,10 +285,10 @@ defmodule Showdown.Game do
       },
       %Pokemon{
         name: "charmander",
-        speed: 39,
+        speed: 65,
         attack: 52,
         defense: 43,
-        hp: 39,
+        hp: 15,
         max_hp: 39,
         type: "fire",
         moves: [
@@ -260,7 +309,7 @@ defmodule Showdown.Game do
         speed: 43,
         attack: 48,
         defense: 65,
-        hp: 44,
+        hp: 15,
         max_hp: 44,
         type: "water",
         moves: [
