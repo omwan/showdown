@@ -25,7 +25,8 @@
             <div class="column">
                 Welcome back, <%= @username %> |
                 <%= link("Logout", to: session_path(@conn, :delete),
-                method: :delete) %>
+                method: :delete) %> | 
+                    <a href="/">Lobby</a>
             </div>
         </div>
         <% else %>
