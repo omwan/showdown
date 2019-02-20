@@ -31,7 +31,7 @@ defmodule Showdown.GameServer do
   end
 
   def apply(name, username) do
-    GenServer.call(__MODULE__, {:view, name, username})
+    GenServer.call(__MODULE__, {:apply, name, username})
   end
 
   ## Implementations
