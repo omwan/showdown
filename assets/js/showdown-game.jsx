@@ -55,7 +55,7 @@ class Showdown extends React.Component {
             this.setState({[recipient1]: p1});
             return delay(1000);
         }).then(() => {
-            if (seq2) {
+            if (state.sequence.length > 1) {
                 let text2 = seq2.player + "'s " + seq2.attacker + " used " + seq2.move + " on " + seq2.opponent + "'s " + seq2.recipient + "!";
                 let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
                 let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
