@@ -111,10 +111,8 @@ class Battle extends React.Component {
 
     render() {
         return <div className="battle">
-                { teams && <Team name={this.player().name} team={this.player().team} classname="player"></Team> }
-                { teams && <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> }
-                { !teams && <Team name={this.player().name} classname="player"></Team> }
-                { !teams && <Team name={this.opponent().name} classname="opponent"></Team> }
+                <Team name={this.player().name} team={this.player().team} classname="player"></Team> 
+                <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> 
                 <div className="artwork player">
                     <img src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
                 </div>
