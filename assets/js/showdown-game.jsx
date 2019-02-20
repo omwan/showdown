@@ -27,55 +27,42 @@ class Showdown extends React.Component {
     }
 
     got_view(view) {
+        console.log(view.game);
         let game = view.game;
         game.text = "";
         if (game.opponent) {
             game.player.hp = game.player.current_pokemon.hp;
             game.opponent.hp = game.opponent.current_pokemon.hp;
         }
-        console.log(game);
         this.setState(game);
         let sequence = game.sequence;
-        if (sequence) {
-            if (sequence.length > 0) {
-                this.animate(game);
-                
-            }
+        if (game.sequence && game.sequence.length > 0) {
+            this.setState({sequence: [], animating: true});
+            this.animate(sequence);
         }
     }
 
-    animate() {
-        let state = _.assign({}, this.state);
-        let seq1 = state.sequence[0];
-        let text1 = seq1.player + "'s " + seq1.attacker + " used " + seq1.move + " on " + seq1.opponent + "'s " + seq1.recipient + "!";
-        let recipient1 = state.player.name != seq1.player ? "player" : "opponent";
-        let seq2 = state.sequence[1];
-        this.setState({text: text1});
-
-        delay(3000).then(() => {
-            let p1 = _.assign({}, this.state[recipient1], {hp: seq1.opponent_remaining_hp});
-            this.setState({[recipient1]: p1});
-            return delay(1000);
-        }).then(() => {
-            if (state.sequence.length > 1) {
-                let text2 = seq2.player + "'s " + seq2.attacker + " used " + seq2.move + " on " + seq2.opponent + "'s " + seq2.recipient + "!";
-                let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
-                let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
-                this.setState({text: ""});
-                this.setState({text: text2});
-                
-                return delay(3000).then(() => {
-                    this.setState({[recipient2]: p2});
-                    return delay(1000);
-                }).then(() => {
-                    return this.channel.push("apply")
-                        .receive("ok", this.got_view.bind(this));
-                });
-            } else {
-                return this.channel.push("apply")
-                    .receive("ok", this.got_view.bind(this));
-            }
-        });
+    animate(sequence) {
+        let seq = sequence[0];
+        if (typeof seq === 'undefined') {
+            this.channel.push("apply")
+                    .receive("ok", (resp) => {
+                        resp.sequence = [];
+                        this.got_view(resp);
+                    });
+        } else {
+            let text = [seq.player + "'s", seq.attacker, "used", seq.move, "on", seq.opponent + "'s", seq.recipient + "!"].join(" ");
+            let recipient = this.state.player == seq.player ? "player" : "opponent";
+            this.setState({text: text});
+            setTimeout(() => {
+                let player = _.assign({}, this.state[recipient], {hp: seq.opponent_remaining_hp});
+                this.setState({[recipient]: player});
+                setTimeout(() => {
+                    this.setState({text: ""});
+                    this.animate([sequence[1]]);
+                }, 1000);
+            }, 3000);
+        }
     }
 
     receive_broadcast(msg) {
@@ -94,15 +81,11 @@ class Showdown extends React.Component {
 
     render() {
         return <div>
-            { !this.state.opponent && <WaitingRoom></WaitingRoom> }
+            { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
             { this.state.finished && <div>You {this.state.finished}!</div>}
         </div>
     }
-}
-
-function WaitingRoom(props) {
-    return <div className="waiting-room">Waiting for another user to join.</div>;
 }
 
 class Battle extends React.Component {
@@ -151,7 +134,6 @@ class Moveset extends React.Component {
     constructor(props) {
         super(props);
         this.state = { enabled: true};
-        console.log(this.state);
         this.moves = props.moves;
         this.class = props.classname + " moveset";
     }
@@ -252,10 +234,4 @@ class SwitchPkm extends React.Component {
     render() {
         return <div></div>
     }
-}
-
-function delay(time) {
-    return new Promise( r => {
-        setTimeout(r, time);
-    });
 }
