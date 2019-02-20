@@ -13,6 +13,7 @@ class Showdown extends React.Component {
         super(props);
         this.channel = props.channel;
         this.state = {};
+        this.text = "";
 
         this.channel
             .join()
@@ -27,17 +28,48 @@ class Showdown extends React.Component {
 
     got_view(view) {
         let game = view.game;
+        game.text = "";
+        game.player.hp = game.player.current_pokemon.hp;
+        game.opponent.hp = game.opponent.current_pokemon.hp;
         console.log(game);
         this.setState(game);
-
-        if ("sequence" in game) {
-            if (game.sequence.length === 2) {
-                setTimeout(() => {
-                    this.channel.push("apply")
-                        .receive("ok", this.got_view.bind(this))
-                }, 1000);
+        let sequence = game.sequence;
+        if (sequence) {
+            if (sequence.length === 2) {
+                this.animate(game);
+                
             }
         }
+    }
+
+    animate() {
+        let state = _.assign({}, this.state);
+        let seq1 = state.sequence[0];
+        let seq2 = state.sequence[1];
+        let text1 = seq1.attacker + " used " + seq1.move + " on " + seq1.recipient + "!";
+        let text2 = seq2.attacker + " used " + seq2.move + " on " + seq2.recipient + "!";
+        let recipient1 = state.player.name != seq1.player ? "player" : "opponent";
+        let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
+        let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
+        
+        this.setState({text: text1});
+        
+        setTimeout(() => {
+            let p1 = _.assign({}, this.state[recipient1], {hp: seq1.opponent_remaining_hp});
+            this.setState({[recipient1]: p1});
+            setTimeout(() => {
+                this.setState({text: ""});
+
+                this.setState({text: text2});
+                setTimeout(() => {
+                    this.setState({[recipient2]: p2})
+                    setTimeout(() => {
+                        this.channel.push("apply")
+                            .receive("ok", this.got_view.bind(this));
+                    }, 1000);
+                }, 3000);
+            }, 1000);
+        }, 3000);
     }
 
     receive_broadcast(msg) {
@@ -48,7 +80,7 @@ class Showdown extends React.Component {
     }
 
     selectMove(move) {
-        console.log("Submitted move: " + move);
+        // console.log("Submitted move: " + move);
         this.channel.push("move", {move: move})
             .receive("ok", this.got_view.bind(this));
     }
@@ -56,10 +88,9 @@ class Showdown extends React.Component {
 
     render() {
         return <div>
-            { debug && <RestartButton></RestartButton>}
             { !this.state.opponent && <WaitingRoom></WaitingRoom> }
-            { this.state.opponent && <Battle state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
-
+            { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
+            { this.state.finished && <div>You {this.state.finished}!</div>}
         </div>
     }
 }
@@ -74,101 +105,87 @@ class Battle extends React.Component {
         this.channel = props.channel;
         this.player = () => this.props.state.player;
         this.opponent = () => this.props.state.opponent;
+        this.text = () => this.props.state.text;
         this.selectMove = props.selectMove;
     }
 
     render() {
         return <div className="battle">
-    { teams && <Team name={this.player().name} team={this.player().team} classname="player"></Team> }
-    { teams && <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> }
-                <img className="artwork player" src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
-                <PkmInfoBar pokemon={this.player().current_pokemon} classname="player"></PkmInfoBar>
-                <PkmInfoBar pokemon={this.opponent().current_pokemon}  classname="opponent"></PkmInfoBar>
-                <img className="artwork opponent" src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
-                { true && <BattleText></BattleText>}
-                <Menu team={this.player().team} moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Menu>
+                <Team name={this.player().name} team={this.player().team} classname="player"></Team> 
+                <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> 
+                <div className="artwork player">
+                    <img src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
+                </div>
+                <PkmInfoBar owner={this.player()} classname="player"></PkmInfoBar>
+                <PkmInfoBar owner={this.opponent()}  classname="opponent"></PkmInfoBar>
+                <div className="artwork opponent">
+                    <img src="https://cdn.discordapp.com/attachments/405465305822003201/546814731944591371/image0.jpg"></img>
+                </div>
+
+                { this.text() && <BattleText text={this.text()}></BattleText>}
+                {this.props.state.sequence.length == 0 && teams && <Menu team={this.player().team} moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Menu>}
+                {this.props.state.sequence.length == 0 && !teams && <Moveset classname="menu" moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Moveset>}
+                {this.props.state.sequence.length > 0 && <div className="menu"></div>}
             </div>
     }
 }
 
 function PkmInfoBar(props) {
-        console.log("PROPS: " + JSON.stringify(props));
-        let pokemon = props.pokemon || "";
+        let pokemon = props.owner.current_pokemon || "";
+        let hp = props.owner.hp;
         let c = props.classname + " info-bar";
         return <div className={c}>
-            <div className="pkm-name">{pokemon.name}</div>
-            <div className="pkm-hp">{pokemon.hp} / {pokemon.max_hp}</div>
+            <div className="name">{pokemon.name}</div>
+            <div className="pkm-hp">{hp} / {pokemon.max_hp}</div>
         </div>;
 }
 
 class Moveset extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = { enabled: true};
+        console.log(this.state);
         this.moves = props.moves;
+        this.class = props.classname + " moveset";
     }
 
     selectMove(move) {
+        this.setState({enabled: false});
         this.props.selectMove(move);
     }
 
     render() {
         let moves = [];
-        for (let i = 0; i < this.moves.length; i++) {
-            let move = moves[i];
-            moves.push(
-                <Move key={i} move={this.moves[i]} selectMove={this.props.selectMove}></Move>
-            );
-        }
-        return <div className="moveset">
-            {moves}
+            for (let i = 0; i < this.moves.length; i++) {
+                let move = moves[i];
+                moves.push(
+                    <Move key={i} move={this.moves[i]} selectMove={this.selectMove.bind(this)}></Move>
+                );
+            }
+        return <div className={this.class}>
+            {this.state.enabled && moves}
         </div>
     }
 }
 
-class Move extends React.Component {
-    constructor(props) {
-        super(props);
-        this.channel = props.channel;
-        this.state = {};
-        this.class = this.props.classname + " move";
-        this.move = props.move;
+function Move(props) {
+    let c = props.classname + " move";
+    let move = props.move;
+
+    
+    let handleClick = function(move) {
+        props.selectMove(move);
     }
 
-    handleClick(move) {
+return <div className={c} onClick={(e) => handleClick(move.name)}>
+    <div className="name">{move.name}</div>
+    <div className="move-info">
+        <div className="move-type">{move.type}</div>
+        <div className="move-power">power: {move.power}</div>
 
-        // this.channel.push("move", {move: this.move})
-        //     .receive("ok", )
-        this.props.selectMove(move);
-        // TODO: send move to server
-    }
-
-    render() {
-        return <div className={this.class} onClick={(e) => this.handleClick(this.move.name)}>
-            <div className="move-name">{this.move.name}</div>
-            <div className="move-info">
-                <div className="move-type">{this.move.type}</div>
-                <div className="move-power">power: {this.move.power}</div>
-
-            </div>
-
-        </div>
-    }
-
+    </div>
+</div>;
 }
-// class Result extends React.Component {
-//     constructor(props) {
-//         super(props);
-//         this.channel = props.channel;
-//         this.state = {};
-//     }
-//     // result + button to redirect to / ?
-//     render() {
-//         return <div className="redirect">
-
-//         </div>
-//     }
-// }
 
 class Team extends React.Component {
     constructor(props) {
@@ -179,22 +196,16 @@ class Team extends React.Component {
     }
 
     render() {
-        return <div className={this.class}></div>
+        return <div className={this.class}>
+            <div className="name">
+                {this.props.name}
+            </div>
+        </div>
     }
 }
 
-class BattleText extends React.Component {
-
-    constructor(props) {
-        super(props);
-        this.channel = props.channel;
-        this.state = {};
-        this.class = "battle-text";
-    }
-
-    render() {
-        return <div className={this.class}></div>
-    }
+function BattleText(props) {
+    return <div className="battle-text typewriter">{props.text}</div>;
 }
 
 class Menu extends React.Component {
@@ -210,7 +221,6 @@ class Menu extends React.Component {
 
     handleClick(text) {
         this.setState({menu: text});
-        console.log(this.state);
     }
 
     render() {
@@ -225,15 +235,6 @@ class Menu extends React.Component {
     }
 }
 
-class RestartButton extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    // insert restart button here for debug purposes
-    render() {
-        return <button></button>
-    }
-}
 
 class SwitchPkm extends React.Component {
     constructor(props) {
