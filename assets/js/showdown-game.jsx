@@ -22,6 +22,7 @@ class Showdown extends React.Component {
             });
 
         this.channel.on("move", this.receive_broadcast.bind(this));
+        this.channel.on("join", this.receive_broadcast.bind(this));
     }
 
     got_view(view) {
@@ -40,10 +41,10 @@ class Showdown extends React.Component {
     }
 
     receive_broadcast(msg) {
+        console.log("broadcast received", msg);
         this.setState(_.assign({}, this.state, msg));
         this.channel.push("view")
             .receive("ok", this.got_view.bind(this));
-        console.log(msg);
     }
 
     selectMove(move) {
@@ -51,6 +52,7 @@ class Showdown extends React.Component {
         this.channel.push("move", {move: move})
             .receive("ok", this.got_view.bind(this));
     }
+
 
     render() {
         return <div>
