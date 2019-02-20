@@ -34,6 +34,15 @@ class Showdown extends React.Component {
             game.opponent.hp = game.opponent.current_pokemon.hp;
         }
         this.setState(game);
+
+        if (game.finished) {
+            setTimeout(() => {
+                this.channel.push("end")
+                    .receive("ok", () => {});
+                window.location.href = "/";
+            }, 10000);
+        }
+
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
         }

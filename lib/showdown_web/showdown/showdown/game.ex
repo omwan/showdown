@@ -267,7 +267,7 @@ defmodule Showdown.Game do
         speed: 45,
         attack: 49,
         defense: 49,
-        hp: 15,
+        hp: 45,
         max_hp: 45,
         type: "grass",
         moves: [
@@ -288,7 +288,7 @@ defmodule Showdown.Game do
         speed: 65,
         attack: 52,
         defense: 43,
-        hp: 15,
+        hp: 39,
         max_hp: 39,
         type: "fire",
         moves: [
@@ -309,7 +309,7 @@ defmodule Showdown.Game do
         speed: 43,
         attack: 48,
         defense: 65,
-        hp: 15,
+        hp: 44,
         max_hp: 44,
         type: "water",
         moves: [
