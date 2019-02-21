@@ -91,7 +91,7 @@ class Showdown extends React.Component {
 
 
     render() {
-        return <div>
+        return <div className="showdown-game">
             { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
             { this.state.finished && <div>You {this.state.finished}!</div>}
@@ -169,8 +169,8 @@ class Moveset extends React.Component {
 }
 
 function Move(props) {
-    let c = props.classname + " move";
     let move = props.move;
+    let c = props.classname + " move " + move.type;
 
     
     let handleClick = function(move) {

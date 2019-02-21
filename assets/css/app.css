@@ -12,22 +12,32 @@ header {
 .games {
     margin-bottom:50px;
 }
+.showdown-game {
+    display: flex;
 
+}
 .battle {
+    font-family: "Comic Sans MS";
     display: grid;
-    grid-gap: 5px;
+    grid-gap: 15px;
     grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 27% 27% 10% 36%;
     height: 60%;
-    min-height: 600px;
-    width: 100%;
+    min-height: 500px;
+    width: 60%;
+    min-width: 400px;
+    box-sizing: border-box;
+    padding: 10px;
+    margin: auto;
     grid-template-areas: 
     "player-team opponent-info opponent-info opponent-art opponent-team"
     "player-team player-art player-info player-info opponent-team"
     "player-team battle-text battle-text battle-text opponent-team"
-    ". m m m .";
+    "m m m m m";
     justify-content: center;
+
 }
+
 
 .player.team {
     grid-area: player-team;
@@ -70,7 +80,7 @@ header {
 
 .menu {
     grid-area: m;
-    border: 1px dashed black;
+    border: 2px dashed black;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -97,22 +107,45 @@ button {
 }
 
 .team {
-    background-color: rgb(250, 250, 250);
+    background-color: rgba(0, 0, 0, .05);
 }
 
 .moveset {
     width: 100%;
     margin: auto;
     display: flex;
+    flex-direction: row;
     justify-content: space-around;
 }
+
 
 .move {
     display: inline-block;
     width: 40%;
-    border: 1px dashed black;
+    border: 2px dashed black;
     padding: 10px;
     text-align: center;
+}
+
+.move:hover {
+    background-color: rgba(0,0,0,.05);
+    cursor: pointer;
+}
+
+.grass {
+    border-color: rgb(40, 190, 60);
+}
+
+.water {
+    border-color: rgb(26, 90, 207);
+}
+
+.fire {
+    border-color: rgb(226, 48, 48);
+}
+
+.move-info {
+    font-size: smaller;
 }
 
 .name {
@@ -165,4 +198,9 @@ button {
     20%, 50%, 80% {
         transform: translateX(0px);
     }
+}
+
+
+.player.team div {
+    
 }
