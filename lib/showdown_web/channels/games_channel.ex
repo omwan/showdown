@@ -56,8 +56,9 @@ defmodule ShowdownWeb.GamesChannel do
   End the game.
   """
   def handle_in("end", _params, socket) do
-    view = GameServer.end_game(socket.assigns[:game], socket.assigns[:username])
-    {:reply, {:ok, %{}}, socket}
+    GameServer.end_game(socket.assigns[:game], socket.assigns[:username])
+    broadcast(socket, "end", %{})
+    {:noreply, socket}
   end
 
   defp authorized?(_payload) do
