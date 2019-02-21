@@ -1,3 +1,8 @@
+<!--
+join game UI and scripts referenced from own memory game
+https://github.com/omwan/memory/blob/master/lib/memory_web/templates/page/index.html.eex
+-->
+
 <div class="row">
     <%= if @username do %>
     <div class="column">
