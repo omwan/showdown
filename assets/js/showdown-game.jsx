@@ -23,6 +23,9 @@ class Showdown extends React.Component {
 
         this.channel.on("move", this.receive_broadcast.bind(this));
         this.channel.on("join", this.receive_broadcast.bind(this));
+        this.channel.on("end", (() => {
+            window.location.href = "/";
+        }).bind(this));
     }
 
     got_view(view) {
@@ -108,6 +111,9 @@ class Showdown extends React.Component {
     render() {
         let finishScreen =  <div>
             <p>You {this.state.finished}!</p>
+            <p><a onClick={() => {
+                this.endGame();
+            }} href="javascript:void(0)">Return to lobby</a></p>
         </div>;
 
         let waitingRoom = <div className="waiting-room">
@@ -122,7 +128,7 @@ class Showdown extends React.Component {
                     <Battle text={this.text}
                                    state={this.state}
                                    selectMove={this.selectMove.bind(this)} />
-                    <img class="lol" src="/images/bikachu.png"></img>
+                    <img className="lol" src="/images/bikachu.png" />
                 </div>;
             } else {
                 return finishScreen;
