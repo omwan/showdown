@@ -5,7 +5,7 @@ import _ from 'lodash';
 export default function game_init(root, channel) {
     ReactDOM.render(<Showdown channel={channel}/>, root);
 }
-let debug = false;
+
 let teams = false; // teams yet to be implemented
 
 class Showdown extends React.Component {
