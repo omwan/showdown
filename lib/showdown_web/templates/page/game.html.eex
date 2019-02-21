@@ -1,7 +1,6 @@
 <script>
  window.gameName = "<%= @game %>";
 </script>
-<img class="lol" src="/images/bikachu.png">
 
 <div class="row">
   <div class="column">
