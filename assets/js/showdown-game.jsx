@@ -35,6 +35,15 @@ class Showdown extends React.Component {
             game.opponent.hp = game.opponent.current_pokemon.hp;
         }
         this.setState(game);
+
+        if (game.finished) {
+            setTimeout(() => {
+                this.channel.push("end")
+                    .receive("ok", () => {});
+                window.location.href = "/";
+            }, 10000);
+        }
+
         let sequence = game.sequence;
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
@@ -174,7 +183,7 @@ function Move(props) {
 
     let handleClick = function(move) {
         props.selectMove(move);
-    }
+    };
 
     return <div className={c} onClick={(e) => handleClick(move.name)}>
                 <div className="name">{move.name}</div>
@@ -212,12 +221,21 @@ class Menu extends React.Component {
 
     render() {
         return <div className="menu">
-        {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
-        <div className="submenu">
-            {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
-            {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
-            {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
-            {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
+            {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
+            <div className="submenu">
+                {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
+                {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
+                {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
+                {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
         </div>
     }
+}
+
+
+
+
+function delay(time) {
+    return new Promise( r => {
+        setTimeout(r, time);
+    });
 }

@@ -1,24 +1,10 @@
 <div class="row">
     <%= if @username do %>
     <div class="column">
-
         <div class="games">
             <div class="row">
                 <div class="column">
-                    <h2>Join an existing game</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="column">
-                    <a href="/game/demo">Demo</a>
-                </div>
-            </div>
-        </div>
-
-        <div class="games">
-            <div class="row">
-                <div class="column">
-                    <h2>Join a new game</h2>
+                    <h2>Join a game</h2>
                 </div>
             </div>
             <div class="row">

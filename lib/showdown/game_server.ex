@@ -34,6 +34,10 @@ defmodule Showdown.GameServer do
     GenServer.call(__MODULE__, {:apply, name, username})
   end
 
+  def end_game(name, username) do
+    GenServer.call(__MODULE__, {:end, name, username})
+  end
+
   ## Implementations
   def init(state) do
     {:ok, state}
@@ -62,5 +66,10 @@ defmodule Showdown.GameServer do
            |> Game.apply(username)
     view = Game.client_view(game, username)
     {:reply, view, Map.put(state, name, game)}
+  end
+
+  def handle_call({:end, name, username}, _from, state) do
+    Map.delete(state, name)
+    {:reply, %{}, %{}}
   end
 end
