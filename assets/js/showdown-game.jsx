@@ -108,11 +108,6 @@ class Showdown extends React.Component {
     render() {
         let finishScreen =  <div>
             <p>You {this.state.finished}!</p>
-            <p>
-                <a onClick={() => {
-                    this.endGame();
-                }} href="javascript:void(0)">Return to lobby</a>
-            </p>
         </div>;
 
         let waitingRoom = <div className="waiting-room">
