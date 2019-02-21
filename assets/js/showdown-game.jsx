@@ -35,6 +35,15 @@ class Showdown extends React.Component {
             game.opponent.hp = game.opponent.current_pokemon.hp;
         }
         this.setState(game);
+
+        if (game.finished) {
+            setTimeout(() => {
+                this.channel.push("end")
+                    .receive("ok", () => {});
+                window.location.href = "/";
+            }, 10000);
+        }
+
         let sequence = game.sequence;
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
@@ -112,33 +121,33 @@ class Battle extends React.Component {
 
     render() {
         return <div className="battle">
-                <Team name={this.player().name} team={this.player().team} classname="player"></Team> 
-                <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team> 
-                <div className="artwork player">
-                    <img src={"../images/" + this.player().current_pokemon.name + ".png"}></img>
-                </div>
-                <PkmInfoBar owner={this.player()} classname="player"></PkmInfoBar>
-                <PkmInfoBar owner={this.opponent()}  classname="opponent"></PkmInfoBar>
-                <div className="artwork opponent">
-                    <img src={"../images/" + this.opponent().current_pokemon.name + ".png"}></img>
-                </div>
-
-                { this.text() && <BattleText text={this.text()}></BattleText>}
-                {this.props.state.sequence.length == 0 && teams && <Menu team={this.player().team} moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Menu>}
-                {this.props.state.sequence.length == 0 && !teams && <Moveset classname="menu" moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Moveset>}
-                {this.props.state.sequence.length > 0 && <div className="menu"></div>}
+            <Team name={this.player().name} team={this.player().team} classname="player"></Team>
+            <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team>
+            <div className="artwork player">
+                <img src={"../images/" + this.player().current_pokemon.name + ".png"}></img>
             </div>
+            <PkmInfoBar owner={this.player()} classname="player"></PkmInfoBar>
+            <PkmInfoBar owner={this.opponent()}  classname="opponent"></PkmInfoBar>
+            <div className="artwork opponent">
+                <img src={"../images/" + this.opponent().current_pokemon.name + ".png"}></img>
+            </div>
+
+            { this.text() && <BattleText text={this.text()}></BattleText>}
+            {this.props.state.sequence.length == 0 && teams && <Menu team={this.player().team} moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Menu>}
+            {this.props.state.sequence.length == 0 && !teams && <Moveset classname="menu" moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Moveset>}
+            {this.props.state.sequence.length > 0 && <div className="menu"></div>}
+        </div>
     }
 }
 
 function PkmInfoBar(props) {
-        let pokemon = props.owner.current_pokemon || "";
-        let hp = props.owner.hp;
-        let c = props.classname + " info-bar";
-        return <div className={c}>
-            <div className="name">{pokemon.name}</div>
-            <div className="pkm-hp">{hp} / {pokemon.max_hp}</div>
-        </div>;
+    let pokemon = props.owner.current_pokemon || "";
+    let hp = props.owner.hp;
+    let c = props.classname + " info-bar";
+    return <div className={c}>
+        <div className="name">{pokemon.name}</div>
+        <div className="pkm-hp">{hp} / {pokemon.max_hp}</div>
+    </div>;
 }
 
 class Moveset extends React.Component {
@@ -156,12 +165,12 @@ class Moveset extends React.Component {
 
     render() {
         let moves = [];
-            for (let i = 0; i < this.moves.length; i++) {
-                let move = moves[i];
-                moves.push(
-                    <Move key={i} move={this.moves[i]} selectMove={this.selectMove.bind(this)}></Move>
-                );
-            }
+        for (let i = 0; i < this.moves.length; i++) {
+            let move = moves[i];
+            moves.push(
+                <Move key={i} move={this.moves[i]} selectMove={this.selectMove.bind(this)}></Move>
+            );
+        }
         return <div className={this.class}>
             {this.state.enabled && moves}
         </div>
@@ -172,19 +181,19 @@ function Move(props) {
     let c = props.classname + " move";
     let move = props.move;
 
-    
+
     let handleClick = function(move) {
         props.selectMove(move);
-    }
+    };
 
-return <div className={c} onClick={(e) => handleClick(move.name)}>
-    <div className="name">{move.name}</div>
-    <div className="move-info">
-        <div className="move-type">{move.type}</div>
-        <div className="move-power">power: {move.power}</div>
+    return <div className={c} onClick={(e) => handleClick(move.name)}>
+        <div className="name">{move.name}</div>
+        <div className="move-info">
+            <div className="move-type">{move.type}</div>
+            <div className="move-power">power: {move.power}</div>
 
-    </div>
-</div>;
+        </div>
+    </div>;
 }
 
 class Team extends React.Component {
@@ -225,12 +234,12 @@ class Menu extends React.Component {
 
     render() {
         return <div className="menu">
-        {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
-        <div className="submenu">
-            {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
-            {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
-            {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
-            {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
+            {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
+            <div className="submenu">
+                {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
+                {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
+                {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
+                {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
         </div>
     }
 }
@@ -245,4 +254,12 @@ class SwitchPkm extends React.Component {
     render() {
         return <div></div>
     }
+}
+
+
+
+function delay(time) {
+    return new Promise( r => {
+        setTimeout(r, time);
+    });
 }

@@ -1,6 +1,10 @@
 /* This file is for your main application css. */
 @import "~milligram/dist/milligram";
 
+body {
+    font-family: "Comic Sans MS";
+}
+
 header {
     margin-bottom:50px;
 }
