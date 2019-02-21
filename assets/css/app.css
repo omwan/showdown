@@ -2,45 +2,27 @@
 @import "~milligram/dist/milligram";
 
 body {
-    font-family: "Comic Sans MS";
 }
 
 header {
-    margin-bottom:50px;
-}
-
-.lol {
-    position: absolute;
-    bottom: 0%;
-    right: 0%;
-    width: 100%;
-    z-index: -2;
-    opacity: .5;
-}
-
-
-html, body, .container, .showdown-game {
-    height: 100%;
-    width: 100%;
-    max-width: 100%;
-    margin: 0;
-}
-main {
-    height: 100% - 25px;
-    width: 100%;
-}
-
-.login-form {
-    width:100%;
+    margin-bottom: 50px;
 }
 
 .games {
-    margin-bottom:50px;
+    margin-bottom: 50px;
 }
+
 .showdown-game {
     display: flex;
-
+    margin:auto;
+    max-width:800px;
+    background-image: url("/images/bikachu_transparent.png");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: bottom right;
+    
 }
+
 .battle {
     font-family: "Comic Sans MS";
     display: grid;
@@ -52,7 +34,7 @@ main {
     min-width: 500px;
     box-sizing: border-box;
     padding: 10px;
-    margin: auto;
+    width:100%;
     grid-template-areas: 
     "player-team opponent-info opponent-info opponent-art opponent-team"
     "player-team player-art player-info player-info opponent-team"
@@ -82,7 +64,7 @@ main {
 
 .opponent.info-bar {
     grid-area: opponent-info;
-    text-align:right;
+    text-align: right;
 }
 
 .player.artwork {
@@ -156,7 +138,7 @@ button {
 }
 
 .move:hover {
-    background-color: rgba(0,0,0,.05);
+    background-color: rgba(0, 0, 0, .05);
     cursor: pointer;
 }
 
@@ -179,33 +161,47 @@ button {
 .name {
     font-weight: 700;
 }
-  
+
+.team {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
 /* The typing effect */
+/* Source: https://css-tricks.com/snippets/css/typewriter-effect/ */
 @keyframes typing {
-  from { width: 0 }
-  to { width: 100% }
+    from {
+        width: 0
+    }
+    to {
+        width: 100%
+    }
 }
 
 @-webkit-keyframes typing {
-    from { width: 0 }
-    to { width: 100% }
-  }
+    from {
+        width: 0
+    }
+    to {
+        width: 100%
+    }
+}
 
-    @-moz-keyframes typing {
-        from { width: 0 }
-        to { width: 100% }
-      }
+@-moz-keyframes typing {
+    from {
+        width: 0
+    }
+    to {
+        width: 100%
+    }
+}
+
 .typewriter {
     overflow: hidden; /* Ensures the content is not revealed until the animation */
     white-space: nowrap; /* Keeps the content on a single line */
     animation: typing 1.0s steps(60, end);
     padding: 10px;
     font-size: 14px;
-  }
-
-  .team {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-  }
+}

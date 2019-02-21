@@ -1,5 +1,14 @@
 # Showdown
 
+Project for CS4550 Web Development, built in collaboration with [Chloe Hwang](https://github.com/koucaco). 
+Watered-down version of Pokemon Showdown, built with Elixir and React.
+
+__Attributions__
+
+  * [CSS typewriter animation effect](https://css-tricks.com/snippets/css/typewriter-effect/)
+  
+## Deployment
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
