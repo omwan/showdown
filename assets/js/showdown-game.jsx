@@ -36,15 +36,19 @@ class Showdown extends React.Component {
 
         if (game.finished) {
             setTimeout(() => {
-                this.channel.push("end")
-                    .receive("ok", () => {});
-                window.location.href = "/";
+                this.endGame();
             }, 10000);
         }
 
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
         }
+    }
+
+    endGame() {
+        this.channel.push("end")
+            .receive("ok", () => {});
+        window.location.href = "/";
     }
 
     animate() {
@@ -102,19 +106,36 @@ class Showdown extends React.Component {
 
 
     render() {
-        let finishScreen = <div>
+        let finishScreen =  <div>
             <p>You {this.state.finished}!</p>
-            <p><a href="/">Return to lobby</a></p>
+            <p>
+                <a onClick={() => {
+                    this.endGame();
+                }} href="javascript:void(0)">Return to lobby</a>
+            </p>
         </div>;
-        return <div className="showdown-game">
-            { this.state.opponent && <img className="lol" src="/images/bikachu.png" /> }
-            { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
-            { this.state.opponent && !this.state.finished &&
-            <Battle text={this.text}
-                    state={this.state}
-                    selectMove={this.selectMove.bind(this)} /> }
-            { this.state.finished && finishScreen}
+
+        let waitingRoom = <div className="waiting-room">
+            Waiting for another user to join.
         </div>;
+
+        let gameFullScreen = <div>This game is currently full.</div>;
+
+        if (this.state.opponent) {
+            if (!this.state.finished) {
+                return <Battle text={this.text}
+                               state={this.state}
+                               selectMove={this.selectMove.bind(this)} />;
+            } else {
+                return finishScreen;
+            }
+        } else {
+            if (this.state.player) {
+                return waitingRoom;
+            } else {
+                return gameFullScreen;
+            }
+        }
     }
 }
 
@@ -125,17 +146,22 @@ function Battle(props) {
         let selectMove = props.selectMove;
 
         return <div className="battle">
+
                 <Team name={player().name}
                       team={player().team}
                       classname="player" />
+
                 <Team name={opponent().name}
                       team={opponent().team}
                       classname="opponent" />
+
                 <div className="artwork player">
                     <img src={"../images/" + player().current_pokemon.name + ".png"} />
                 </div>
+
                 <PkmInfoBar owner={player()} classname="player" />
                 <PkmInfoBar owner={opponent()}  classname="opponent" />
+
                 <div className="artwork opponent">
                     <img src={"../images/" + opponent().current_pokemon.name + ".png"} />
                 </div>
