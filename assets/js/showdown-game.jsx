@@ -56,18 +56,25 @@ class Showdown extends React.Component {
         let text1 = seq1.player + "'s " + seq1.attacker + " used " + seq1.move + " on " + seq1.opponent + "'s " + seq1.recipient + "!";
         let recipient1 = state.player.name != seq1.player ? "player" : "opponent";
         let seq2 = state.sequence[1];
-        this.setState({text: text1});
 
+        // sets the displayed text to the first event text
+        this.setState({text: text1});
         delay(3000).then(() => {
+
+            // sets the recipient's (player's or opponent's) hp value to remaining hp
             let p1 = _.assign({}, this.state[recipient1], {hp: seq1.opponent_remaining_hp});
             this.setState({[recipient1]: p1});
             return delay(1000);
         }).then(() => {
+
             if (state.sequence.length > 1) {
                 let text2 = seq2.player + "'s " + seq2.attacker + " used " + seq2.move + " on " + seq2.opponent + "'s " + seq2.recipient + "!";
                 let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
                 let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
+
+                // reset the battle text component, so it gets the typewriter animation again
                 this.setState({text: ""});
+                // and same thing for the 2nd event
                 this.setState({text: text2});
 
                 delay(3000).then(() => {
@@ -100,7 +107,8 @@ class Showdown extends React.Component {
 
 
     render() {
-        return <div>
+        return <div className="showdown-game">
+            { this.state.opponent && <img class="lol" src="/images/bikachu.png"></img> }
             { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
             { this.state.finished && <div>You {this.state.finished}!</div>}
@@ -178,8 +186,8 @@ class Moveset extends React.Component {
 }
 
 function Move(props) {
-    let c = props.classname + " move";
     let move = props.move;
+    let c = props.classname + " move " + move.type;
 
 
     let handleClick = function(move) {
