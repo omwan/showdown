@@ -5,7 +5,7 @@ import _ from 'lodash';
 export default function game_init(root, channel) {
     ReactDOM.render(<Showdown channel={channel}/>, root);
 }
-
+let debug = false;
 let teams = false; // teams yet to be implemented
 
 class Showdown extends React.Component {
@@ -27,6 +27,7 @@ class Showdown extends React.Component {
     }
 
     got_view(view) {
+        console.log(view.game);
         let game = view.game;
         game.text = "";
         if (game.opponent) {
@@ -43,6 +44,7 @@ class Showdown extends React.Component {
             }, 10000);
         }
 
+        let sequence = game.sequence;
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
         }
@@ -80,6 +82,7 @@ class Showdown extends React.Component {
                     .receive("ok", this.got_view.bind(this));
             }
         });
+
     }
 
     receive_broadcast(msg) {
@@ -98,15 +101,11 @@ class Showdown extends React.Component {
 
     render() {
         return <div>
-            { !this.state.opponent && <WaitingRoom></WaitingRoom> }
+            { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
             { this.state.finished && <div>You {this.state.finished}!</div>}
         </div>
     }
-}
-
-function WaitingRoom(props) {
-    return <div className="waiting-room">Waiting for another user to join.</div>;
 }
 
 class Battle extends React.Component {
@@ -155,7 +154,6 @@ class Moveset extends React.Component {
     constructor(props) {
         super(props);
         this.state = { enabled: true};
-        console.log(this.state);
         this.moves = props.moves;
         this.class = props.classname + " moveset";
     }
@@ -186,7 +184,7 @@ function Move(props) {
 
     let handleClick = function(move) {
         props.selectMove(move);
-    }
+    };
 
     return <div className={c} onClick={(e) => handleClick(move.name)}>
         <div className="name">{move.name}</div>
@@ -236,12 +234,12 @@ class Menu extends React.Component {
 
     render() {
         return <div className="menu">
-        {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
-        <div className="submenu">
-            {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
-            {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
-            {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
-            {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
+            {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
+            <div className="submenu">
+                {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
+                {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
+                {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
+                {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
         </div>
     }
 }
@@ -257,6 +255,8 @@ class SwitchPkm extends React.Component {
         return <div></div>
     }
 }
+
+
 
 function delay(time) {
     return new Promise( r => {
