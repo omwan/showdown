@@ -139,7 +139,7 @@ button {
     background-color: rgba(0, 0, 0, .05);
 }
 
-.moveset {
+div.moveset {
     width: 100%;
     margin: auto;
     display: flex;
