@@ -118,9 +118,12 @@ class Showdown extends React.Component {
 
         if (this.state.opponent) {
             if (!this.state.finished) {
-                return <Battle text={this.text}
-                               state={this.state}
-                               selectMove={this.selectMove.bind(this)} />;
+                return <div className="showdown-game">
+                    <Battle text={this.text}
+                                   state={this.state}
+                                   selectMove={this.selectMove.bind(this)} />
+                    <img class="lol" src="/images/bikachu.png"></img>
+                </div>;
             } else {
                 return finishScreen;
             }
@@ -206,7 +209,10 @@ class Moveset extends React.Component {
                          selectMove={this.selectMove.bind(this)} />
         });
 
+        let wait = <div>waiting for opponent to select their move.</div>
+
         return <div className={this.class}>
+            {!this.state.enabled && wait}
             {this.state.enabled && moves}
         </div>;
     }

@@ -1,7 +1,31 @@
 /* This file is for your main application css. */
 @import "~milligram/dist/milligram";
 
-body {
+.lol {
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    width: 100%;
+    z-index: -2;
+    opacity: .5;
+}
+
+header {
+    margin: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+
+ html, body, .container, .showdown-game {
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+main {
+    height: 100% - 25px;
+    width: 100%;
 }
 
 header {
@@ -16,11 +40,6 @@ header {
     display: flex;
     margin:auto;
     max-width:800px;
-    background-image: url("/images/bikachu_transparent.png");
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position: bottom right;
-    
 }
 
 .battle {
