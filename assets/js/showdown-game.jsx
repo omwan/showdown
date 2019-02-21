@@ -108,7 +108,7 @@ class Showdown extends React.Component {
 
     render() {
         return <div className="showdown-game">
-            { this.state.opponent && <img class="lol" src="/images/bikachu.png"></img> }
+            { this.state.opponent && <img className="lol" src="/images/bikachu.png"></img> }
             { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
             { this.state.finished && <div>You {this.state.finished}!</div>}
@@ -168,7 +168,7 @@ class Moveset extends React.Component {
 
     render() {
         let moves = _.map(this.moves, (move) => {
-            return <Move move={move} selectMove={this.selectMove.bind(this)}></Move>
+            return <Move key={move.name} move={move} selectMove={this.selectMove.bind(this)}></Move>
         });
 
         return <div className={this.class}>
