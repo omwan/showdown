@@ -46,7 +46,7 @@ header {
     font-family: "Comic Sans MS";
     display: grid;
     grid-template-columns: 20% 20% 20% 20% 20%;
-    grid-template-rows: 27% 27% 10% 36%;
+    grid-template-rows: 20% 20% 10% 50%;
     height: 60%;
     min-height: 500px;
     width: 60%;
@@ -64,7 +64,7 @@ header {
 
 }
 
-.battle div {
+.battle > div {
     margin: 7px;
 }
 
@@ -145,6 +145,7 @@ button {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    flex-flow: row wrap;
 }
 
 
@@ -154,6 +155,12 @@ button {
     border: 2px dashed black;
     padding: 10px;
     text-align: center;
+
+}
+@media only screen and (min-width: 800px) {
+    .move {
+        width: 20%;
+    }
 }
 
 .move:hover {
@@ -171,6 +178,38 @@ button {
 
 .fire {
     border-color: rgb(226, 48, 48);
+}
+
+.steel {
+    border-color: rgb(114, 114, 114);
+}
+
+.fighting {
+    border-color: rgb(134, 51, 12);
+}
+
+.electric {
+    border-color: rgb(197, 201, 7);
+}
+
+.poison {
+    border-color: rgb(132, 40, 185);
+}
+
+.ghost {
+    border-color: rgb(66, 52, 90);
+}
+
+.dark {
+    border-color: rgb(0, 0, 0);
+}
+
+.normal {
+    border-color: rgb(160, 160, 160);
+}
+
+.Nice {
+    border-color: rgb(255, 0, 255); 
 }
 
 .move-info {

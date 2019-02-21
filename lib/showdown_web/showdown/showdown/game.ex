@@ -127,34 +127,44 @@ defmodule Showdown.Game do
   Type effectiveness sequence is water -> fire -> grass -> water.
   """
   def type_effectiveness(opp_type, move_type) do
+   
     case opp_type do
       "fire" ->
         case move_type do
-          "water" ->
+          type when type in ["water", "rock", "ground"] ->
             2.0
-          "grass" ->
+          type when type in ["grass", "fire", "bug", "steel", "ice"] ->
             0.5
           _ ->
             1
         end
       "water" ->
         case move_type do
-          "grass" ->
+          type when type in ["grass", "electric"] ->
             2.0
-          "fire" ->
+            type when type in ["fire", "water", "steel", "ice"] ->
             0.5
           _ ->
             1
         end
       "grass" ->
         case move_type do
-          "fire" ->
+          type when type in ["fire", "flying", "poison", "bug", "ice"] ->
             2.0
-          "water" ->
+            type when type in ["water", "grass"] ->
             0.5
           _ ->
             1
         end
+        "normal" ->
+          case move_type do
+            "fighting" ->
+              2.0
+            "ghost" ->
+              0
+            _ ->
+              1
+          end
     end
   end
 
@@ -185,7 +195,7 @@ defmodule Showdown.Game do
   """
   def calculate_damage(player_pokemon, player_move, opp_pokemon) do
     modifier = calculate_modifier(opp_pokemon.type, player_move.type, player_pokemon.type)
-    base_damage = ((player_pokemon.attack / opp_pokemon.defense) * player_move.power)
+    base_damage = ((player_pokemon.attack / opp_pokemon.defense) * player_move.power) * (Enum.random(85..100) / 100)
     trunc((base_damage / 10) * modifier)
   end
 
@@ -354,6 +364,16 @@ defmodule Showdown.Game do
             name: "tackle",
             type: "normal",
             power: 40
+          },
+          %Move{
+            name: "watering can",
+            type: "water",
+            power: 30
+          },
+          %Move{
+            name: "sludge bomb",
+            type: "poison",
+            power: 60
           }
         ]
       },
@@ -375,6 +395,16 @@ defmodule Showdown.Game do
             name: "scratch",
             type: "normal",
             power: 40
+          },
+          %Move{
+            name: "tazer",
+            type: "electric",
+            power: 30
+          },
+          %Move{
+            name: "metal claw",
+            type: "steel",
+            power: 60
           }
         ]
       },
@@ -396,6 +426,47 @@ defmodule Showdown.Game do
             name: "tackle",
             type: "normal",
             power: 40
+          },
+          %Move{
+            name: "regular gun",
+            type: "steel",
+            power: 60
+          },
+          %Move{
+            name: "karate",
+            type: "fighting",
+            power: 30
+          }
+        ]
+      },
+      %Pokemon{
+        name: "eevee",
+        speed: 55,
+        attack: 55,
+        defense: 50,
+        hp: 55,
+        max_hp: 55,
+        type: "normal",
+        moves: [
+          %Move{
+            name: "tackle",
+            type: "normal",
+            power: 40
+          },
+          %Move{
+            name: "bite",
+            type: "dark",
+            power: 60
+          },
+          %Move{
+            name: "swag",
+            type: "Nice",
+            power: 69
+          },
+          %Move{
+            name: "shadow ball",
+            type: "ghost",
+            power: 60
           }
         ]
       }
