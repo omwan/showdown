@@ -108,7 +108,7 @@ class Showdown extends React.Component {
 
     render() {
         return <div className="showdown-game">
-            { this.state.opponent && <img class="lol" src="/images/bikachu.png"></img> }
+            { this.state.opponent && <img className="lol" src="/images/bikachu.png"></img> }
             { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
             { this.state.finished && <div>You {this.state.finished}!</div>}
@@ -116,46 +116,40 @@ class Showdown extends React.Component {
     }
 }
 
-class Battle extends React.Component {
-    constructor(props) {
-        super(props);
-        this.channel = props.channel;
-        this.state = {};
-        this.player = () => this.props.state.player;
-        this.opponent = () => this.props.state.opponent;
-        this.text = () => this.props.state.text;
-        this.selectMove = props.selectMove;
-    }
+function Battle(props) {
+        let player = () => props.state.player;
+        let opponent = () => props.state.opponent;
+        let text = () => props.state.text;
+        let selectMove = props.selectMove;
 
-    render() {
         return <div className="battle">
-            <Team name={this.player().name} team={this.player().team} classname="player"></Team>
-            <Team name={this.opponent().name} team={this.opponent().team} classname="opponent"></Team>
-            <div className="artwork player">
-                <img src={"../images/" + this.player().current_pokemon.name + ".png"}></img>
-            </div>
-            <PkmInfoBar owner={this.player()} classname="player"></PkmInfoBar>
-            <PkmInfoBar owner={this.opponent()}  classname="opponent"></PkmInfoBar>
-            <div className="artwork opponent">
-                <img src={"../images/" + this.opponent().current_pokemon.name + ".png"}></img>
-            </div>
+                <Team name={player().name} team={player().team} classname="player"></Team> 
+                <Team name={opponent().name} team={opponent().team} classname="opponent"></Team> 
+                <div className="artwork player">
+                    <img src={"../images/" + player().current_pokemon.name + ".png"}></img>
+                </div>
+                <PkmInfoBar owner={player()} classname="player"></PkmInfoBar>
+                <PkmInfoBar owner={opponent()}  classname="opponent"></PkmInfoBar>
+                <div className="artwork opponent">
+                    <img src={"../images/" + opponent().current_pokemon.name + ".png"}></img>
+                </div>
 
-            { this.text() && <BattleText text={this.text()}></BattleText>}
-            {this.props.state.sequence.length == 0 && teams && <Menu team={this.player().team} moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Menu>}
-            {this.props.state.sequence.length == 0 && !teams && <Moveset classname="menu" moves={this.player().current_pokemon.moves} selectMove={this.selectMove}></Moveset>}
-            {this.props.state.sequence.length > 0 && <div className="menu"></div>}
-        </div>
-    }
+                { text() && <div className="battle-text typewriter">{text()}</div>}
+                {props.state.sequence.length == 0 && teams && <Menu team={player().team} moves={player().current_pokemon.moves} selectMove={selectMove}></Menu>}
+                {props.state.sequence.length == 0 && !teams && <Moveset classname="menu" moves={player().current_pokemon.moves} selectMove={selectMove}></Moveset>}
+                {props.state.sequence.length > 0 && <div className="menu"></div>}
+            </div>;
 }
 
 function PkmInfoBar(props) {
-    let pokemon = props.owner.current_pokemon || "";
-    let hp = props.owner.hp;
-    let c = props.classname + " info-bar";
-    return <div className={c}>
-        <div className="name">{pokemon.name}</div>
-        <div className="pkm-hp">{hp} / {pokemon.max_hp}</div>
-    </div>;
+        let pokemon = props.owner.current_pokemon || "";
+        let hp = props.owner.hp;
+        let c = props.classname + " info-bar";
+
+        return <div className={c}>
+            <div className="name">{pokemon.name}</div>
+            <div className="pkm-hp">{hp} / {pokemon.max_hp}</div>
+        </div>;
 }
 
 class Moveset extends React.Component {
@@ -164,6 +158,7 @@ class Moveset extends React.Component {
         this.state = { enabled: true};
         this.moves = props.moves;
         this.class = props.classname + " moveset";
+        this.state = {enabled: true};
     }
 
     selectMove(move) {
@@ -172,13 +167,10 @@ class Moveset extends React.Component {
     }
 
     render() {
-        let moves = [];
-        for (let i = 0; i < this.moves.length; i++) {
-            let move = moves[i];
-            moves.push(
-                <Move key={i} move={this.moves[i]} selectMove={this.selectMove.bind(this)}></Move>
-            );
-        }
+        let moves = _.map(this.moves, (move) => {
+            return <Move key={move.name} move={move} selectMove={this.selectMove.bind(this)}></Move>
+        });
+
         return <div className={this.class}>
             {this.state.enabled && moves}
         </div>
@@ -189,40 +181,27 @@ function Move(props) {
     let move = props.move;
     let c = props.classname + " move " + move.type;
 
-
     let handleClick = function(move) {
         props.selectMove(move);
     };
 
     return <div className={c} onClick={(e) => handleClick(move.name)}>
-        <div className="name">{move.name}</div>
-        <div className="move-info">
-            <div className="move-type">{move.type}</div>
-            <div className="move-power">power: {move.power}</div>
+                <div className="name">{move.name}</div>
+                <div className="move-info">
+                    <div className="move-type">{move.type}</div>
+                    <div className="move-power">power: {move.power}</div>
 
-        </div>
-    </div>;
+                </div>
+            </div>;
 }
 
-class Team extends React.Component {
-    constructor(props) {
-        super(props);
-        this.channel = props.channel;
-        this.state = {};
-        this.class = this.props.classname + " team";
-    }
-
-    render() {
-        return <div className={this.class}>
-            <div className="name">
-                {this.props.name}
-            </div>
-        </div>
-    }
-}
-
-function BattleText(props) {
-    return <div className="battle-text typewriter">{props.text}</div>;
+function Team(props) {
+    let c = props.classname + " team";
+    return <div className={c}>
+                <div className="name">
+                    {props.name}
+                </div>
+            </div>;
 }
 
 class Menu extends React.Component {
@@ -252,17 +231,6 @@ class Menu extends React.Component {
     }
 }
 
-
-class SwitchPkm extends React.Component {
-    constructor(props) {
-        super(props);
-        this.updateView = props.updateView;
-    }
-
-    render() {
-        return <div></div>
-    }
-}
 
 
 
