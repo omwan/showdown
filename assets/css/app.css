@@ -13,16 +13,6 @@ header {
     margin-bottom: 50px;
 }
 
-.lol {
-    display:none;
-    position: fixed;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    z-index: -2;
-    opacity: .5;
-}
-
 .games {
     margin-bottom: 50px;
 }

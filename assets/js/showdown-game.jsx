@@ -36,15 +36,19 @@ class Showdown extends React.Component {
 
         if (game.finished) {
             setTimeout(() => {
-                this.channel.push("end")
-                    .receive("ok", () => {});
-                window.location.href = "/";
+                this.endGame();
             }, 10000);
         }
 
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
         }
+    }
+
+    endGame() {
+        this.channel.push("end")
+            .receive("ok", () => {});
+        window.location.href = "/";
     }
 
     animate() {
@@ -104,7 +108,11 @@ class Showdown extends React.Component {
     render() {
         let finishScreen =  <div>
             <p>You {this.state.finished}!</p>
-            <p><a href="/">Return to lobby</a></p>
+            <p>
+                <a onClick={() => {
+                    this.endGame();
+                }} href="javascript:void(0)">Return to lobby</a>
+            </p>
         </div>;
 
         let waitingRoom = <div className="waiting-room">
@@ -138,17 +146,22 @@ function Battle(props) {
         let selectMove = props.selectMove;
 
         return <div className="battle">
+
                 <Team name={player().name}
                       team={player().team}
                       classname="player" />
+
                 <Team name={opponent().name}
                       team={opponent().team}
                       classname="opponent" />
+
                 <div className="artwork player">
                     <img src={"../images/" + player().current_pokemon.name + ".png"} />
                 </div>
+
                 <PkmInfoBar owner={player()} classname="player" />
                 <PkmInfoBar owner={opponent()}  classname="opponent" />
+
                 <div className="artwork opponent">
                     <img src={"../images/" + opponent().current_pokemon.name + ".png"} />
                 </div>
