@@ -102,19 +102,32 @@ class Showdown extends React.Component {
 
 
     render() {
-        let finishScreen = <div>
+        let finishScreen =  <div>
             <p>You {this.state.finished}!</p>
             <p><a href="/">Return to lobby</a></p>
         </div>;
-        return <div className="showdown-game">
-            { this.state.opponent && <img className="lol" src="/images/bikachu.png" /> }
-            { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
-            { this.state.opponent && !this.state.finished &&
-            <Battle text={this.text}
-                    state={this.state}
-                    selectMove={this.selectMove.bind(this)} /> }
-            { this.state.finished && finishScreen}
+
+        let waitingRoom = <div className="waiting-room">
+            Waiting for another user to join.
         </div>;
+
+        let gameFullScreen = <div>This game is currently full.</div>;
+
+        if (this.state.opponent) {
+            if (!this.state.finished) {
+                return <Battle text={this.text}
+                               state={this.state}
+                               selectMove={this.selectMove.bind(this)} />;
+            } else {
+                return finishScreen;
+            }
+        } else {
+            if (this.state.player) {
+                return waitingRoom;
+            } else {
+                return gameFullScreen;
+            }
+        }
     }
 }
 
