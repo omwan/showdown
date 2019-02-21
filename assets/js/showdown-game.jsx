@@ -73,6 +73,7 @@ class Showdown extends React.Component {
                     .receive("ok", this.got_view.bind(this));
             }
         });
+
     }
 
     receive_broadcast(msg) {
@@ -244,10 +245,4 @@ class SwitchPkm extends React.Component {
     render() {
         return <div></div>
     }
-}
-
-function delay(time) {
-    return new Promise( r => {
-        setTimeout(r, time);
-    });
 }
