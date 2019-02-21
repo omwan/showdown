@@ -5,6 +5,27 @@ header {
     margin-bottom:50px;
 }
 
+.lol {
+    position: absolute;
+    bottom: 0%;
+    right: 0%;
+    width: 100%;
+    z-index: -2;
+    opacity: .5;
+}
+
+
+html, body, .container, .showdown-game {
+    height: 100%;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+}
+main {
+    height: 100% - 25px;
+    width: 100%;
+}
+
 .login-form {
     width:100%;
 }
@@ -19,7 +40,6 @@ header {
 .battle {
     font-family: "Comic Sans MS";
     display: grid;
-    grid-gap: 15px;
     grid-template-columns: 20% 20% 20% 20% 20%;
     grid-template-rows: 27% 27% 10% 36%;
     height: 60%;
@@ -35,9 +55,13 @@ header {
     "player-team battle-text battle-text battle-text opponent-team"
     "m m m m m";
     justify-content: center;
+    background-color: rgba(255, 255, 255, 0.7);
 
 }
 
+.battle div {
+    margin: 7px;
+}
 
 .player.team {
     grid-area: player-team;
@@ -181,26 +205,3 @@ button {
       align-items: center;
       text-align: center;
   }
-
-  .shake {
-      animation: shaking 0.5s;
-      animation-iteration-count: infinite;
-      -webkit-animation-iteration-count: infinite;
-  }
-
-@keyframes shaking {
-    0%, 30%, 60%, 90% {
-        transform: translateX(2px);
-    }
-    10%, 40%, 70%, 100% {
-        transform: translateX(-2px);
-    }
-    20%, 50%, 80% {
-        transform: translateX(0px);
-    }
-}
-
-
-.player.team div {
-    
-}

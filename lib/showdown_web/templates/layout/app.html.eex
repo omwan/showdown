@@ -18,7 +18,6 @@
 
 <body>
 <div class="container">
-
     <header>
         <%= if @username do %>
         <div class="row">
