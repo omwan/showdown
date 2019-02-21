@@ -5,7 +5,6 @@ import _ from 'lodash';
 export default function game_init(root, channel) {
     ReactDOM.render(<Showdown channel={channel}/>, root);
 }
-let debug = false;
 let teams = false; // teams yet to be implemented
 
 class Showdown extends React.Component {
@@ -27,7 +26,6 @@ class Showdown extends React.Component {
     }
 
     got_view(view) {
-        console.log(view.game);
         let game = view.game;
         game.text = "";
         if (game.opponent) {
@@ -44,7 +42,6 @@ class Showdown extends React.Component {
             }, 10000);
         }
 
-        let sequence = game.sequence;
         if (game.sequence && game.sequence.length > 0) {
             this.animate();
         }
@@ -54,7 +51,7 @@ class Showdown extends React.Component {
         let state = _.assign({}, this.state);
         let seq1 = state.sequence[0];
         let text1 = seq1.player + "'s " + seq1.attacker + " used " + seq1.move + " on " + seq1.opponent + "'s " + seq1.recipient + "!";
-        let recipient1 = state.player.name != seq1.player ? "player" : "opponent";
+        let recipient1 = state.player.name !== seq1.player ? "player" : "opponent";
         let seq2 = state.sequence[1];
 
         // sets the displayed text to the first event text
@@ -69,7 +66,7 @@ class Showdown extends React.Component {
 
             if (state.sequence.length > 1) {
                 let text2 = seq2.player + "'s " + seq2.attacker + " used " + seq2.move + " on " + seq2.opponent + "'s " + seq2.recipient + "!";
-                let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
+                let recipient2 = state.player.name === seq1.player ? "player" : "opponent";
                 let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
 
                 // reset the battle text component, so it gets the typewriter animation again
@@ -93,26 +90,31 @@ class Showdown extends React.Component {
     }
 
     receive_broadcast(msg) {
-        console.log("broadcast received", msg);
         this.setState(_.assign({}, this.state, msg));
         this.channel.push("view")
             .receive("ok", this.got_view.bind(this));
     }
 
     selectMove(move) {
-        // console.log("Submitted move: " + move);
         this.channel.push("move", {move: move})
             .receive("ok", this.got_view.bind(this));
     }
 
 
     render() {
+        let finishScreen = <div>
+            <p>You {this.state.finished}!</p>
+            <p><a href="/">Return to lobby</a></p>
+        </div>;
         return <div className="showdown-game">
-            { this.state.opponent && <img className="lol" src="/images/bikachu.png"></img> }
+            { this.state.opponent && <img className="lol" src="/images/bikachu.png" /> }
             { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
-            { this.state.opponent && !this.state.finished && <Battle text={this.text} state={this.state} selectMove={this.selectMove.bind(this)}></Battle> }
-            { this.state.finished && <div>You {this.state.finished}!</div>}
-        </div>
+            { this.state.opponent && !this.state.finished &&
+            <Battle text={this.text}
+                    state={this.state}
+                    selectMove={this.selectMove.bind(this)} /> }
+            { this.state.finished && finishScreen}
+        </div>;
     }
 }
 
@@ -123,20 +125,30 @@ function Battle(props) {
         let selectMove = props.selectMove;
 
         return <div className="battle">
-                <Team name={player().name} team={player().team} classname="player"></Team> 
-                <Team name={opponent().name} team={opponent().team} classname="opponent"></Team> 
+                <Team name={player().name}
+                      team={player().team}
+                      classname="player" />
+                <Team name={opponent().name}
+                      team={opponent().team}
+                      classname="opponent" />
                 <div className="artwork player">
-                    <img src={"../images/" + player().current_pokemon.name + ".png"}></img>
+                    <img src={"../images/" + player().current_pokemon.name + ".png"} />
                 </div>
-                <PkmInfoBar owner={player()} classname="player"></PkmInfoBar>
-                <PkmInfoBar owner={opponent()}  classname="opponent"></PkmInfoBar>
+                <PkmInfoBar owner={player()} classname="player" />
+                <PkmInfoBar owner={opponent()}  classname="opponent" />
                 <div className="artwork opponent">
-                    <img src={"../images/" + opponent().current_pokemon.name + ".png"}></img>
+                    <img src={"../images/" + opponent().current_pokemon.name + ".png"} />
                 </div>
 
                 { text() && <div className="battle-text typewriter">{text()}</div>}
-                {props.state.sequence.length == 0 && teams && <Menu team={player().team} moves={player().current_pokemon.moves} selectMove={selectMove}></Menu>}
-                {props.state.sequence.length == 0 && !teams && <Moveset classname="menu" moves={player().current_pokemon.moves} selectMove={selectMove}></Moveset>}
+                {props.state.sequence.length === 0 && teams &&
+                    <Menu team={player().team}
+                          moves={player().current_pokemon.moves}
+                          selectMove={selectMove} />}
+                {props.state.sequence.length === 0 && !teams &&
+                    <Moveset classname="menu"
+                             moves={player().current_pokemon.moves}
+                             selectMove={selectMove} />}
                 {props.state.sequence.length > 0 && <div className="menu"></div>}
             </div>;
 }
@@ -168,12 +180,14 @@ class Moveset extends React.Component {
 
     render() {
         let moves = _.map(this.moves, (move) => {
-            return <Move key={move.name} move={move} selectMove={this.selectMove.bind(this)}></Move>
+            return <Move key={move.name}
+                         move={move}
+                         selectMove={this.selectMove.bind(this)} />
         });
 
         return <div className={this.class}>
             {this.state.enabled && moves}
-        </div>
+        </div>;
     }
 }
 
@@ -190,7 +204,6 @@ function Move(props) {
                 <div className="move-info">
                     <div className="move-type">{move.type}</div>
                     <div className="move-power">power: {move.power}</div>
-
                 </div>
             </div>;
 }
@@ -221,18 +234,28 @@ class Menu extends React.Component {
 
     render() {
         return <div className="menu">
-            {this.state.menu != '' && <button onClick={ (e) => this.handleClick('')}>back to menu</button>}
+            {this.state.menu !== '' &&
+                <button onClick={(e) => this.handleClick('')}>
+                    back to menu
+                </button>}
             <div className="submenu">
-                {this.state.menu == '' && <button onClick={ (e) => this.handleClick('moves')}>moves</button>}
-                {teams && this.state.menu == '' && <button onClick={ (e) => this.handleClick('pokemon')}>pokemon</button>}
-                {this.state.menu == 'moves' && <Moveset moves={this.moves} selectMove={this.props.selectMove}></Moveset>}
-                {this.state.menu == 'pokemon'  && <SwitchPkm team={this.team}></SwitchPkm>}</div>
-        </div>
+                {this.state.menu === '' &&
+                    <button onClick={ (e) => this.handleClick('moves')}>
+                        moves
+                    </button>}
+                {teams && this.state.menu === '' &&
+                    <button onClick={ (e) => this.handleClick('pokemon')}>
+                        pokemon
+                    </button>}
+                {this.state.menu === 'moves' &&
+                    <Moveset moves={this.moves}
+                             selectMove={this.props.selectMove} />}
+                {this.state.menu === 'pokemon'  &&
+                    <SwitchPkm team={this.team} />}
+            </div>
+        </div>;
     }
 }
-
-
-
 
 function delay(time) {
     return new Promise( r => {
