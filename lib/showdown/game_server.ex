@@ -3,6 +3,9 @@ defmodule Showdown.GameServer do
 
   alias Showdown.Game
 
+  # Referenced from https://github.com/NatTuck/hangman/compare/multiplayer#diff-0c7d5da6562f59959f8d43c26e25a095
+  # and https://github.com/NatTuck/hangman-2019-01/compare/02-04-backup-agent...02-06-multiplayer#diff-0c7d5da6562f59959f8d43c26e25a095
+
   def start(name) do
     spec = %{
       id: __MODULE__,
@@ -68,7 +71,7 @@ defmodule Showdown.GameServer do
     {:reply, view, Map.put(state, name, game)}
   end
 
-  def handle_call({:end, name, username}, _from, state) do
+  def handle_call({:end, name, _username}, _from, state) do
     Map.delete(state, name)
     {:reply, %{}, %{}}
   end

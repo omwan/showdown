@@ -20,6 +20,8 @@ defmodule ShowdownWeb.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
+
+  # Referenced from https://github.com/NatTuck/hangman/compare/multiplayer#diff-760268f1135711bf1b03985a86f85641
   def connect(%{"token" => token}, socket) do
     {:ok, socket}
     case Phoenix.Token.verify(socket, "user socket", token, max_age: 1209600) do
