@@ -37,27 +37,43 @@ class Showdown extends React.Component {
         this.setState(game);
         let sequence = game.sequence;
         if (game.sequence && game.sequence.length > 0) {
-            this.animate(sequence);
+            this.animate();
         }
     }
 
-    animate(sequence) {
-        let seq = sequence[0];
-        if (typeof seq === 'undefined') {
-            this.channel.push("apply").receive("ok", this.got_view.bind(this));
-        } else {
-            let text = [seq.player + "'s", seq.attacker, "used", seq.move, "on", seq.opponent + "'s", seq.recipient + "!"].join(" ");
-            let recipient = this.state.player == seq.player ? "player" : "opponent";
-            this.setState({text: text});
-            setTimeout(() => {
-                let player = _.assign({}, this.state[recipient], {hp: seq.opponent_remaining_hp});
-                this.setState({[recipient]: player});
-                setTimeout(() => {
-                    this.setState({text: ""});
-                    this.animate([sequence[1]]);
-                }, 1000);
-            }, 3000);
-        }
+    animate() {
+        let state = _.assign({}, this.state);
+        let seq1 = state.sequence[0];
+        let text1 = seq1.player + "'s " + seq1.attacker + " used " + seq1.move + " on " + seq1.opponent + "'s " + seq1.recipient + "!";
+        let recipient1 = state.player.name != seq1.player ? "player" : "opponent";
+        let seq2 = state.sequence[1];
+        this.setState({text: text1});
+
+        delay(3000).then(() => {
+            let p1 = _.assign({}, this.state[recipient1], {hp: seq1.opponent_remaining_hp});
+            this.setState({[recipient1]: p1});
+            return delay(1000);
+        }).then(() => {
+            if (state.sequence.length > 1) {
+                let text2 = seq2.player + "'s " + seq2.attacker + " used " + seq2.move + " on " + seq2.opponent + "'s " + seq2.recipient + "!";
+                let recipient2 = state.player.name == seq1.player ? "player" : "opponent";
+                let p2 = _.assign({}, this.state[recipient2], {hp: seq2.opponent_remaining_hp});
+                this.setState({text: ""});
+                this.setState({text: text2});
+
+                delay(3000).then(() => {
+                    this.setState({[recipient2]: p2});
+                    return delay(1000);
+                }).then(() => {
+                    this.channel.push("apply")
+                        .receive("ok", this.got_view.bind(this));
+                });
+            } else {
+                this.channel.push("apply")
+                    .receive("ok", this.got_view.bind(this));
+            }
+        });
+
     }
 
     receive_broadcast(msg) {
