@@ -5,7 +5,6 @@ import _ from 'lodash';
 export default function game_init(root, channel) {
     ReactDOM.render(<Showdown channel={channel}/>, root);
 }
-let debug = false;
 let teams = false; // teams yet to be implemented
 
 class Showdown extends React.Component {
@@ -103,15 +102,19 @@ class Showdown extends React.Component {
 
 
     render() {
+        let finishScreen = <div>
+            <p>You {this.state.finished}!</p>
+            <p><a href="/">Return to lobby</a></p>
+        </div>;
         return <div className="showdown-game">
             { this.state.opponent && <img className="lol" src="/images/bikachu.png" /> }
             { !this.state.opponent && <div className="waiting-room">Waiting for another user to join.</div> }
             { this.state.opponent && !this.state.finished &&
-                <Battle text={this.text}
-                        state={this.state}
-                        selectMove={this.selectMove.bind(this)} /> }
-            { this.state.finished && <div>You {this.state.finished}!</div>}
-        </div>
+            <Battle text={this.text}
+                    state={this.state}
+                    selectMove={this.selectMove.bind(this)} /> }
+            { this.state.finished && finishScreen}
+        </div>;
     }
 }
 
@@ -184,7 +187,7 @@ class Moveset extends React.Component {
 
         return <div className={this.class}>
             {this.state.enabled && moves}
-        </div>
+        </div>;
     }
 }
 
