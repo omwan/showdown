@@ -19,6 +19,12 @@
 <body>
 <div class="container">
     <header>
+
+        <!--
+        login form referenced from
+        https://github.com/NatTuck/husky_shop/compare/2-deploy...3-users#diff-d9ec840d2862c1b7c832e3059d717b95
+        -->
+
         <%= if @username do %>
         <div class="row">
             <div class="column">

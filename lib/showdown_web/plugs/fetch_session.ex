@@ -1,6 +1,8 @@
 defmodule ShowdownWeb.Plugs.FetchSession do
   import Plug.Conn
 
+  # Referenced from https://github.com/NatTuck/husky_shop/compare/2-deploy...3-users#diff-2c6d7e4b7b6ebe78b01a8847ad5ac5bc
+
   def init(_args) do
     :args
   end
